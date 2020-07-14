@@ -1,0 +1,120 @@
+﻿@model IEnumerable<TMS.tbl_pmsTxTaskEstimation>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Task Estimation</h2>
+
+<p>
+    @*@Html.ActionLink("Create New", "Create", "", htmlAttributes = new { @id = "create", @class = "btn btn-success" } })*@
+    @*<a href='@Url.Action("Create")' id="create" class="btn btn-success">Create New</a>*@
+    <button id="Create" class="btn btn-success" data-toggle="modal" data-target="#ModalTaskEstimation" data-backdrop="false">Create New</button>
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.estimation_ID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.tbl_pmsTxTask.taskReference)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.estimationDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.totalEstimatedHours)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.estimation_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_pmsTxTask.taskReference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.estimationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.totalEstimatedHours)
+            </td>
+
+            <td>
+                <button id="Edit" class="btn btn-success Edit" data-toggle="modal" data-bind="@item.estimation_ID" data-target="#ModalTaskEstimation" data-backdrop="false">Edit</button>
+                <button id="Delete" class="btn btn-success Delete" data-bind="@item.estimation_ID">Delete</button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div class="modal fade" id="ModalTaskEstimation" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Task</h4>
+            </div>
+            <div class="modal-body" id="ModalBody">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $("#Create").click(function () {
+            var url = '/TaskEstimation/Create/' + 0;
+            $("#ModalBody").load(url, function () {
+                $('#ModalTaskEstimation').find('.modal-title').text('Add New Task Estimation');
+                $("#ModalTaskEstimation").show();
+            });
+        });
+
+        $(".Delete").click(function () {
+            var id = $(this).attr('data-bind');
+            var ans = confirm("Are you sure you want to delete this Record? \n\n Estimation Code - " + id + "");
+            if (ans) {
+                $.ajax({
+                    url: '/TaskEstimation/Delete/' + id,
+                    type: "POST",
+                    contentType: "application/json;charset=UTF-8",
+                    dataType: "json",
+                    success: function (result) {
+                        if (data.status) {
+                            alert('Successfully Cancelled');
+                        }
+                        else {
+                            alert('Error');
+                        }
+                    },
+                    error: function (errormessage) {
+                        alert(errormessage.responseText);
+                    }
+                });
+            }
+        });
+
+        $(".Edit").click(function () {
+            //var id = $('#Edit').val();
+            var id = $(this).attr('data-bind');
+            //alert(id);
+            var url = '/TaskEstimation/Edit/' + id;
+            $("#ModalBody").load(url, function () {
+                $('#ModalTaskEstimation').find('.modal-title').text('Edit Task Estimation');
+                $("#ModalTaskEstimation").show();
+                console.log('OK');
+            });
+        });
+
+    </script>
+
+}

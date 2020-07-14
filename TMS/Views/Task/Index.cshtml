@@ -1,0 +1,131 @@
+﻿@model IEnumerable<TMS.tbl_pmsTxTask>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<h2>Tasks</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<p class="text-success">@ViewBag.TaskMessage</p>
+
+<table class="table" id="myTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.taskDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.taskReference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.remarks)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.reported_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.reportedUser_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.customer_ID)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.tbl_genMasFunction.functionName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.tbl_genMasModule.moduleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.tbl_genMasPriority.priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.tbl_genMasProduct.productName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.tbl_genMasStatus.status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.tbl_genMasTaskType.taskType)
+            </th>
+
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.taskDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.taskReference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.remarks)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.reported_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.reportedUser_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genCustomerMaster.customerName)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genMasFunction.functionName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genMasModule.moduleName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genMasPriority.priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genMasProduct.productName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genMasStatus.status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tbl_genMasTaskType.taskType)
+            </td>
+
+
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.task_ID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.task_ID })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@section Scripts {
+@Scripts.Render("~/bundles/jqueryval")
+
+
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable();
+
+            // Activate an inline edit on click of a table cell
+            //$('#myTable').on('click', 'tbody td:not(:first-child)', function (e) {
+            //    editor.inline(this);
+            //});
+        });
+    </script>
+
+}

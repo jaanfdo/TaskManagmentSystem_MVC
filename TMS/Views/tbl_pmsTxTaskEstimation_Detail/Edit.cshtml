@@ -1,0 +1,13 @@
+﻿@model SEACC_TMS_New.tbl_pmsTxTaskEstimation_Detail
+
+@{
+    int i = ViewBag.i == null ? 0 : ViewBag.i;
+}
+
+<tr>
+    <td></td>
+    <td></td>
+    <td>@Html.DropDownList("subTask_ID", null, htmlAttributes: new { @Name = "[" + i + "].subTask_ID", @class = "form-control" })</td>
+    <td>@Html.EditorFor(model => model.estimatedHours, new { htmlAttributes = new { @Name = "[" + i + "].estimatedHours", @class = "form-control" } })</td>
+    <td></td>
+</tr>

@@ -1,0 +1,898 @@
+﻿@{
+    ViewBag.Title = "TaskBucket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #TaskTable td {
+        word-wrap: break-word;
+    }
+
+    .sortorder:after {
+        content: '\25b2';
+    }
+
+    .sortorder.reverse:after {
+        content: '\25bc';
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+</style>
+
+<div ng-app="TaskBucketApp">
+    <div ng-controller="TaskBucketController" style="margin-top:15px; padding-left:5px; padding-right:5px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-6" style="height:50px;">
+                    <h2>{{message}}</h2>
+                </div>
+                <div class="col-sm-6" style="height:50px; padding-top:20px;">
+                    <p class="pull-right">
+                        <span style="margin-bottom:20px; margin-right:20px;">
+                            <input type="checkbox" ng-model="confirmed" checked="checked" ng-change="showAll()" id="showAll"> Show All
+                        </span>
+                        <button name="CreateTask" id="CreateTask" class="btn btn-prmary pull-right" ng-click="SaveTask()">Create Tasks</button>
+                        @*@Html.ActionLink("Create Tasks", "Create", "Task", null, htmlAttributes: new { @class = "btn btn-primary pull-right" })*@
+                    </p>
+                </div>
+            </div>
+            <hr style="margin-left:20px; margin-right:20px;" />
+        </div>
+        <div class="row">
+            <div class="container table-responsive">
+                <table class="col-sm-12">
+                    <tr>
+                        <td>Task :</td>
+                        <td><input type="text" placeholder="Search Task" class="form-control col-sm-3" style="width:220px;" ng-model="search.taskReference" /></td>
+                        <td>Module :</td>
+                        <td><input type="text" placeholder="Search Module" class="form-control col-sm-3" style="width:220px;" ng-model="search.module_ID" /></td>
+                        <td>Priority :</td>
+                        <td><input type="text" placeholder="Search Priority" class="form-control col-sm-3" style="width:220px;" ng-model="search.priority_ID" /></td>
+                    </tr>
+                    <tr>
+                        <td>Client :</td>
+                        <td><input type="text" placeholder="Search Client" class="form-control col-sm-3" style="width:220px;" ng-model="search.client_ID" /></td>
+                        <td>Function :</td>
+                        <td><input type="text" placeholder="Search Function" class="form-control col-sm-3" style="width:220px;" ng-model="search.taskType_ID" /></td>
+                        <td>Assigned To :</td>
+                        <td>
+                            <div class="input-group">
+                                <select class="form-control" ng-model="AssignedUser" ng-change="filterAssignedUser()">
+                                    <option ng-repeat="x in Users" value="{{x.user_ID}}">{{x.user}}</option>
+                                </select>
+                                <span class="input-group-addon">
+                                    <a href="javascript:;" style="color:#d9534f;" ng-click="ResetAll()"><i class="glyphicon glyphicon-remove" style="font-size:16px;"></i></a>
+                                </span>
+                            </div>
+                            @*<input type="text" placeholder="Search Assigned To" class="form-control col-sm-3" style="width:220px;" ng-model="search.AssignedTo" />*@
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Status :</td>
+                        <td><input type="text" placeholder="Search Function" class="form-control col-sm-3" style="width:220px;" ng-model="search.status" /></td>
+                        <td>Product :</td>
+                        <td><input type="text" placeholder="Search Product" class="form-control col-sm-3" style="width:220px;" ng-model="search.product_ID" /></td>
+                        <td>@*Reported Date To :*@</td>
+                        <td>@*<input type="date" class="form-control col-sm-3" style="width:220px;" ng-model="search.reported_Date" />*@</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-3" style="margin:10px 10px;">
+                    <h4>New Tasks :  <span class="label label-primary">@ViewBag.NewStatus_Count</span></h4>
+                </div>
+                <div class="col-sm-3" style="margin:10px 10px;">
+                    <h4>Week to Deadline :  <span class="label label-primary">@ViewBag.Deadline_Count</span></h4>
+                </div>
+                <div class="col-sm-3" style="margin:10px 10px;">
+                    <h4>Due Tasks :  <span class="label label-primary">@ViewBag.Due_Count</span></h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container table-responsive">
+                <table ng-init="List()" id="TaskTable" class="table" style="table-layout:fixed; font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="display:none;"><input type="checkbox" ng-model="model.allItemsSelected" ng-change="selectAll()"></th>
+                            <th style="width:4%; text-align:right;">#</th>
+                            <th style="width:5%; text-align:center;" ng-click="sortBy('task_ID')" class="pointer">
+                                <p>
+                                    Task ID
+                                    <span class="sortorder" ng-show="propertyName === 'task_ID'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            @*<a href="" ng-click="columnToOrder='task_ID';reverse=!reverse"></a>*@
+                            <th style="display:none;">Estimation ID</th>
+                            <th style="width:10%; text-align:center;" ng-click="sortBy('taskDate')" class="pointer">
+                                <p>
+                                    Task Date
+                                    <span class="sortorder" ng-show="propertyName === 'taskDate'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="width:8%;">Module</th>
+                            <th style="width:8%;">Product</th>
+                            <th style="width:15%;">Task Reference</th>
+                            <th style="width:8%;" ng-click="sortBy('taskType_ID')" class="pointer">
+                                <p>
+                                    Task Type
+                                    <span class="sortorder" ng-show="propertyName === 'taskType_ID'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="width:8%;" ng-click="sortBy('priority_ID')" class="pointer">
+                                <p>
+                                    Priority
+                                    <span class="sortorder" ng-show="propertyName === 'priority_ID'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="width:8%;">Status</th>
+                            <th style="width:16%;text-align:center;">Deadline</th>
+                            <th style="width:8%;text-align:center;">Deadline Counter</th>
+                            <th style="width:10%;">Assigned To</th>
+                            <th style="width:10%; display:none;">Assigned To Default</th>
+                            <th style="width:8%;">Client</th>
+                            <th style="width:10%; display:none;">Function</th>
+                            <th style="width:10%;">Reported Date</th>
+                            <th style="display:none;">Reported User</th>
+                            <th style="width:5%;"></th>
+                            <th style="width:5%;"></th>
+                            <th style="width:5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-show="(filterData).length > 0" ng-repeat="task in filterData = (Tasks | filter : search | orderBy:propertyName:reverse) | limitTo:itemsPerPage:itemsPerPage*(currentPage-1)">
+                            @*<tr ng-show="(Tasks).length > 0" ng-repeat="task in Tasks.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage)) | filter : search" ng-class="{'text-danger' : task.isCancelled}">*@    @*| limitTo:currentPage:currentPage*itemsPerPage*@
+                            @*ng-if="task.isCancelled" *@
+                            @*|orderBy:columnToOrder:reverse*@
+                            <td style="display:none;"><input type="checkbox" ng-model="task.isChecked" ng-change="selectItem()"></td>
+                            <td style="text-align:right;">{{$index + (currentPage - 1) * itemsPerPage + 1 }}</td> @*{{$index}}*@
+                            <td>{{task.task_ID}}</td>
+                            <td style="display:none;">{{task.estimation_ID}}</td>
+                            <td style="text-align:center;">{{task.taskDate | filerdate | date:'yyyy/MM/dd' }} </td>
+                            <td>{{task.module_ID}} </td>
+                            <td>{{task.product_ID}} </td>
+                            <td>{{task.taskReference}} </td>
+                            <td>{{task.taskType_ID}} </td>
+                            <td>{{task.priority_ID}} </td>
+                            <td>{{task.status}} </td>
+                            <td><input type="date" id="Deadline" name="Deadline" class="form-control col-sm-2 Deadline" ng-model="task.DeadlineDate" value="{{task.DeadlineDate | date:'yyyy-MM-dd'}}" ng-change="DeadlineSave(task.DeadlineDate, $index + (currentPage - 1) * itemsPerPage, task)" ng-init="DeadlineCounter(task.DeadlineDate, $index + (currentPage - 1) * itemsPerPage)" /> </td>
+                            <td class="DeadlineCounter"><span class="pull-right">{{task.DeadlineCounter}}</span></td>
+                            <td>
+                                <select class="form-control" ng-model="task.AssignedTo" ng-change="changeAssignedUser(task)">
+                                    <option ng-repeat="x in Users" ng-selected="x.user_ID == task.AssignedTo" value="{{x.user_ID}}">{{x.user}}</option>
+                                </select>
+                            </td>
+                            <td style="display:none;">{{task.AssignedTo}} </td>
+                            <td>{{task.client_ID}} </td>
+                            <td style="display:none;">{{task.function_ID}} </td>
+                            <td>{{task.reported_Date | filerdate | date:'yyyy/MM/dd'}} </td>
+                            <td style="display:none;">{{task.reportedUser_ID}} </td>
+                            <td style="text-align:center;"><a href="javascript:;" class="btn btn-primary" ng-click="ViewTask_Details(task.task_ID)"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                            <td>
+                                <div ng-if="task.estimation_ID > 0">
+                                    <button name="btnEditEstimation" id="btnEditEstimation" ng-click="EditEstimation(task.estimation_ID)" ng-class="{'btn btn-success': task.isApproved, 'btn btn-info': !task.isApproved}" class="savedEstimation"><i class="glyphicon glyphicon-pencil"></i></button>
+                                </div>
+                                <div ng-if="task.estimation_ID == 0 ">
+                                    <button name="btnSaveEstimation" id="btnSaveEstimation" ng-click="SaveEstimation(task.task_ID)" class="btn btn-primary pendingEstimation"><i class="glyphicon glyphicon-plus"></i></button>
+                                </div>
+                            </td>
+                            <td>
+                                <button name="btnEdit" id="btnEdit" ng-click="EditTask(task.task_ID)" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="20">
+                                <div class="text-center text-info" ng-show="(filterData|filter:search).length==0">--- No Records Found ---</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="7">
+                                <p class="form-inline">
+                                    View <select class="form-control" style="width:50px;" ng-options="x for x in records" ng-model="viewby" ng-change="setItemsPerPage(viewby)"></select> Records. | Page No : {{currentPage}} | Total Records : {{filterTasks.length}}
+                                </p>
+                            </td>
+                            <td colspan="10">
+                                <uib-pagination class="pagination-sm pagination pull-right" total-items="filterData.length" ng-model="currentPage" max-size="maxSize"
+                                                ng-change="pageChanged()" boundary-links="true" force-ellipses='true' num-pages="numPages" items-per-page="itemsPerPage">
+
+                                </uib-pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                <p class="text-success" style="display:none;">@Session["Message"]</p>
+                <p class="text-success" style="display:none;">{{successmessage}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        var TaskBucketApp = angular.module('TaskBucketApp', ['ui.bootstrap']);
+        TaskBucketApp.controller('TaskBucketController', function ($scope, $http, $filter, $uibModal) {
+            $scope.message = "Task List";
+            $scope.successmessage = "";
+            $scope.confirmed = false;
+            $scope.records = [5, 10, 15, 20];
+            $scope.viewby = 10;
+            //$scope.totalItems = $scope.Tasks.length;
+            $scope.currentPage = 1;
+            $scope.itemsPerPage = $scope.viewby;
+            $scope.maxSize = 5; //Number of pager buttons to show
+            $scope.AssignedUser = "";
+            $scope.propertyName = 'taskDate';
+            $scope.reverse = true;
+
+            $http.get("@Url.Action("Users", "Main")")
+            .then(function (response) {
+                //console.log(response);
+                //$scope.Users = response.data;
+                //console.log(response.data[1].user);
+                //console.log(response.data[1].user_ID);
+                $scope.Users = [];
+                //$scope.Users = [{ name: response.data[0].user, id: response.data[0].user_ID }];
+
+
+                angular.forEach(response.data, function (value, key) {
+                    $scope.Users.push(value);
+                    //console.log($scope.Users);
+                });
+
+                //angular.forEach(response.data, function (value, key) {
+                //    value.startTime = new Date(value.startTime);
+                //    value.endTime = new Date(value.endTime);
+                //});
+            });
+
+
+            $scope.List = function () {
+                $http.get("@Url.Action("List", "TaskBucket")?ShowAll=" + $scope.confirmed + "&AssignedUser=" + $scope.AssignedUser)
+                .then(function (response) {
+                    console.log(response);
+
+                    $scope.Tasks = [];
+                    $scope.AssignedTo = {};
+                    angular.forEach(response.data.data, function (value, key) {
+
+                        $scope.Tasks.push({
+                            task_ID: value.task_ID,
+                            estimation_ID: value.estimation_ID,
+                            taskDate: value.taskDate,
+                            taskReference: value.taskReference,
+                            taskType_ID: value.taskType_ID,
+                            priority_ID: value.priority_ID,
+                            status_ID: value.status_ID,
+                            status: value.status,
+                            AssignedTo: value.AssignedTo,
+                            DeadlineDate: $scope.FilterDate(value.DeadlineDate),
+                            DeadlineCounter: value.DeadlineCounter,
+                            client_ID: value.client_ID,
+                            product_ID: value.product_ID,
+                            module_ID: value.module_ID,
+                            function_ID: value.function_ID,
+                            reported_Date: value.reported_Date,
+                            reportedUser_ID: value.reportedUser_ID,
+                            isApproved: value.isApproved,
+                            isCancelled: value.isCancelled,
+                        });
+
+                    });
+                });
+            }
+            //$scope.List();
+
+
+
+            $scope.sortBy = function (propertyName) {
+                $scope.reverse = ($scope.propertyName === propertyName) ? !$scope.reverse : false;
+                $scope.propertyName = propertyName;
+            };
+
+            $scope.filterAssignedUser = function () {
+                $scope.List();
+            }
+
+            $scope.pageChanged = function () {
+                var startPos = ($scope.currentPage - 1) * 3;
+                //$scope.displayItems = $scope.totalItems.slice(startPos, startPos + 3);
+                console.log($scope.currentPage);
+            };
+
+            $scope.setItemsPerPage = function (num) {
+                $scope.itemsPerPage = num;
+                $scope.currentPage = 1; //reset to first page
+            };
+
+            $scope.ResetAll = function () {
+                $scope.AssignedUser = "";
+                $scope.List();
+            }
+
+            $scope.showAll = function () {
+                $scope.List();
+            }
+
+            $scope.changeAssignedUser = function (task) {
+                console.log(task.task_ID + "  " + task.AssignedTo);
+
+                $http({
+                    url: '../TaskBucket/UpdateAssignedTo',
+                    dataType: 'json',
+                    method: 'POST',
+                    data: JSON.stringify({ "sTaskID": task.task_ID, "sAssignedTo": task.AssignedTo })
+                }).then(function (data) {
+                    console.log(data);
+                    if (data.data.status == true) {
+                        console.log('Successfully Changed Assigned User ' + task.task_ID);
+                        $scope.successmessage += 'Updated ' + task.task_ID + ' Successfully';
+                        //$scope.List();
+                    }
+                    else {
+                        alert('Error');
+                    }
+                });
+            };
+
+            $scope.DeadlineSave = function (DeadlineDate, $index, task) {
+                //console.log($index);
+                var date = new Date(DeadlineDate);
+                //var date1 = new Date();
+
+                //var timeDiff = Math.abs(date.getTime() - date1.getTime());
+                //var Count = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                console.log(task.task_ID);
+                console.log(task.DeadlineDate);
+
+                $http({
+                    url: '../TaskBucket/UpdateDeadline',
+                    dataType: 'json',
+                    method: 'POST',
+                    data: JSON.stringify({ "sTaskID": task.task_ID, "dtDeadline": date })
+                }).then(function (data) {
+                    console.log(data);
+                    if (data.data.status == true) {
+                        console.log('Successfully Changes Deadline ' + task.task_ID);
+                        $scope.DeadlineCounter(DeadlineDate, $index);
+                        $scope.successmessage += 'Updated ' + task.task_ID + ' Successfully \n';
+                        //$scope.List();
+                    }
+                    else {
+                        alert('Error');
+                    }
+                });
+            }
+
+            $scope.DeadlineCounter = function (DeadlineDate, $index) {
+                //console.log($index);
+                var deadlineDate = new Date(DeadlineDate);
+                var toDay = new Date();
+
+                var timeDiff = "";
+
+                //console.log(deadlineDate.getTime() + " - " + toDay.getTime());
+                //console.log(deadlineDate.getDate() + " - " + toDay.getDate());
+                //console.log(deadlineDate.getDay() + " - " + toDay.getDay());
+                //console.log(deadlineDate.getMinutes() + " - " + toDay.getMinutes());
+
+                //if (deadlineDate > toDay) {
+                timeDiff = deadlineDate.getTime() - toDay.getTime();
+                //} else {
+                //    timeDiff = toDay.getTime() - deadlineDate.getTime();
+                //}
+
+
+                //console.log(timeDiff);
+                //console.log(timeDiff / (1000 * 3600 * 24));
+                var Count = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                //console.log(Count);
+                //console.log('-----------------');
+
+                $scope.Tasks[$index].DeadlineCounter = Count;
+            }
+
+            //$scope.DeadlineDate = $filter('date')(new Date(), 'yyyy-MM-dd');
+
+            $scope.FilterDate = function (value) {
+                //console.log(value);
+
+                var ReportedDate = new Date(parseInt(value.substr(6)));
+                //console.log(ReportedDate);
+
+                return ReportedDate;
+            };
+
+
+            $scope.ViewTask_Details = function (task_ID) {
+                console.log("Task : " + task_ID);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Details", "Task" )?task_ID=' + task_ID,
+                    controller: ModalInstanceCtrl,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                }, function () {
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+
+            $scope.SaveTask = function () {
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Create2", "Task" )',
+                    controller: ModalInstanceCtrl2,
+                });
+
+                modalInstance.result.then(function (response) {
+                    console.log(response + ' , - Task Saved');
+                }, function () {
+                    $scope.currentPage = $scope.currentPage;
+                    $scope.List();
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+
+            $scope.EditTask = function (task_ID) {
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Edit2", "Task" )?task_ID=' + task_ID,
+                    controller: ModalInstanceCtrl3,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log(response + ' , - Task Updated');
+                }, function () {
+                    $scope.currentPage = $scope.currentPage;
+                    $scope.List();
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+
+            $scope.SaveEstimation = function (task_ID) {
+                console.log("Save Event");
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Create2", "TaskEstimation")?task_ID=' + task_ID,
+                    controller: ModalInstanceCtrl4,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log(response + ' , - Estimation Saved');
+                }, function () {
+                    $scope.currentPage = $scope.currentPage;
+                    $scope.List();
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+
+            $scope.EditEstimation = function (estimation_ID) {
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Edit2", "TaskEstimation")?estimation_ID=' + estimation_ID,
+                    controller: ModalInstanceCtrl5,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log(response + ' , - Estimation Updated');
+                }, function () {
+                    $scope.currentPage = $scope.currentPage;
+                    $scope.List();
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+        });
+
+        TaskBucketApp.filter("filerdate", function () {
+            var re = /\/Date\(([0-9]*)\)\//;
+            return function (x) {
+                var m = x.match(re);
+                if (m) return new Date(parseInt(m[1]));
+                else return null;
+            };
+        });
+
+
+
+
+
+        var ModalInstanceCtrl = function ($scope, $uibModalInstance) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };            
+        };
+
+        var ModalInstanceCtrl2 = function ($scope, $uibModalInstance) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+        };
+
+        var ModalInstanceCtrl3 = function ($scope, $uibModalInstance, $uibModal) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+
+            $scope.renew = function () {
+                $uibModalInstance.dismiss();
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Create2", "Task" )',
+                    controller: ModalInstanceCtrl2,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                }, function () {
+                    $scope.currentPage = $scope.currentPage;
+                    $scope.List();
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+        };
+
+        var ModalInstanceCtrl4 = function ($scope, $uibModalInstance) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+        };
+
+        var ModalInstanceCtrl5 = function ($scope, $uibModalInstance, $uibModal) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+
+            $scope.renew = function () {
+                $uibModalInstance.dismiss();
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Create2", "TaskEstimation")?task_ID=' + 0,
+                    controller: ModalInstanceCtrl4,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                }, function () {
+                    $scope.currentPage = $scope.currentPage;
+                    $scope.List();
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+        };
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@if (Session["Message"] != null)
+    {
+        <text>
+    $(document).ready(function () {
+        alert(Session["Message"]);
+    });
+    </text>
+    }*@
+
+
+@*//Angular js
+    //---------------------------------------------//
+
+    //Check Boxes
+            $scope.selectItem = function () {
+                // If any entity is not checked, then uncheck the "allItemsSelected" checkbox
+                for (var i = 0; i < $scope.Tasks.length; i++) {
+                    if (!$scope.Tasks[i].isChecked) {
+                        $scope.model.allItemsSelected = false;
+                        return;
+                    }
+                }
+
+                //If not the check the "allItemsSelected" checkbox
+                $scope.model.allItemsSelected = true;
+            };
+
+            // This executes when checkbox in table header is checked
+            $scope.selectAll = function () {
+                // Loop through all the entities and set their isChecked property
+                for (var i = 0; i < $scope.Tasks.length; i++) {
+                    $scope.Tasks[i].isChecked = $scope.model.allItemsSelected;
+                }
+            };
+
+    $scope.GetDetails = function (index) {
+        var task_ID = $scope.Tasks[index].task_ID;
+    var name = $scope.Tasks[index].task_ID;
+    var country = $scope.Tasks[index].taskReference;
+    $window.alert("Task: " + name + "\nRef: " + country);
+    alert(task_ID);
+    $http({
+        method: 'GET',
+        url: '/tbl_pmsTxTaskEstimation/Create',
+        params: { id: task_ID }
+    }).then(function successCallback(response) {
+        alert('ok');
+    }, function errorCallback(response) {
+        alert(response.data['msg']);
+    });
+    var url = '/tbl_pmsTxTaskEstimation/Create/' + task_ID;
+    $('#form').load(url);
+    var url = '/tbl_pmsTxTaskEstimation/Create/' + task_ID;
+    $('#ModalBody').load(url);
+    $('#ModalBody').load(url, function () {
+        console.log(url);
+        $('#ModalTaskEstimation').find('.modal-title').text('Add New Task Estimation');
+        $('#ModalTaskEstimation').show();
+        console.log('ok');
+    });
+    $dialogs.create('tbl_pmsTxTaskEstimation/Create/' + task_ID, '', {}, {
+        key: false,
+        back: 'static'
+    });
+    var modalInstance = $modal.open({
+        animation: true,
+        backdrop: false,
+        ariaLabelledBy: 'modal-title',
+        ariaDescribedBy: 'modal-body',
+        templateUrl: 'tbl_pmsTxTaskEstimation/Create/' + task_ID,
+        size: 800
+    });
+    var pc = this;
+    pc.data = "Lorem Name Test";
+    pc.open = function (size) {
+        var modalInstance = $dialogs.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'myModalContent.html',
+            controller: 'ModalInstanceCtrl',
+            controllerAs: 'pc',
+            size: size,
+            resolve: {
+                data: function () {
+                    var url = '/tbl_pmsTxTaskEstimation/Create/' + task_ID;
+                    $('#ModalBody').load(url);
+                }
+            }
+        });
+        modalInstance.result.then(function () {
+            alert("now I'll close the modal");
+        });
+    };
+    };
+    $scope.open = function () {
+        $modal.open({
+            templateUrl: 'myModalContent.html', // loads the template
+            backdrop: false, // setting backdrop allows us to close the modal window on clicking outside the modal window
+            windowClass: 'modal'
+        });//end of modal.open
+    }; // end of scope.open function
+
+    $scope.close = function () {
+        $scope.modalInstance.dismiss();//$scope.modalInstance.close() also works I think
+    };
+
+    $scope.doSomething = function () {
+        //any actions to take place
+        alert("Do Something");
+    }
+
+    var today = new Date();
+    $scope.fullDate = $filter('date')(today, 'fullDate');
+    $scope.longDate = $filter('date')(today, 'longDate');
+    $scope.mediumDate = $filter('date')(today, 'mediumDate');
+    $scope.shortDate = $filter('date')(today, 'shortDate');
+    $scope.shortDate = $filter('date')(today, 'shortDate');
+    $scope.anotherDate = $filter('date')(today, 'yyyy-MM-dd');
+
+    console.log($scope.fullDate);
+    console.log($scope.longDate);
+    console.log($scope.mediumDate);
+    console.log($scope.shortDate);
+    console.log($scope.shortDate);
+    console.log($scope.anotherDate);
+
+    function asyncGreet() {
+        var now = new Date();
+        var day = ("0" + now.getDate()).slice(-2);
+        var month = ("0" + (now.getMonth() + 1)).slice(-2);
+        var today = now.getFullYear() + "-" + (month) + "-" + (day);
+        return today;
+    }
+
+    $scope.getTotal = function () {
+        var total = 0;
+        for (var i = 0; i < $scope.cart.products.length; i++) {
+            var product = $scope.cart.products[i];
+            total += (product.price * product.quantity);
+        }
+        return total;
+    }
+
+    $scope.register = {};
+    $scope.register.countryId = "1";
+    $scope.register.countries = [{
+        id: "1",
+        name: "India"
+    }, {
+        id: "2",
+        name: "USA"
+    }, {
+        id: "3",
+        name: "UK"
+    }, {
+        id: "4",
+        name: "Nepal"
+    }];
+
+
+    var config = function ($routeProvider) {
+        $routeProvider.when('Article', {
+            templateUrl: function (params) { return '/tbl_pmsTxTaskEstimation/Create?id=' + params.vendIF; }
+        });
+    }
+    config.$inject = ['$routeProvider'];
+
+    TaskBucketApp.config(config);
+
+    .run(['$templateCache', function ($templateCache) {
+        $templateCache.put('/dialogs/whatsyourname.html', '<div class="modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title"><span class="glyphicon glyphicon-star"></span> User\'s Name</h4></div><div class="modal-body"><ng-form name="nameDialog" novalidate role="form"><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[nameDialog.username.$dirty && nameDialog.username.$invalid]"><label class="control-label" for="username">Name:</label><input type="text" class="form-control" name="username" id="username" ng-model="user.name" ng-keyup="hitEnter($event)" required><span class="help-block">Enter your full name, first &amp; last.</span></div></ng-form></div><div class="modal-footer"><button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button><button type="button" class="btn btn-primary" ng-click="save()" ng-disabled="(nameDialog.$dirty && nameDialog.$invalid) || nameDialog.$pristine">Save</button></div></div></div></div>');
+    }])
+
+    angular.module('ui.bootstrap.demo').controller('ModalInstanceCtrl', function ($uibModalInstance, data) {
+        var pc = this;
+        pc.data = data;
+
+        pc.ok = function () {
+            //{...}
+            alert("You clicked the ok button.");
+            $uibModalInstance.close();
+        };
+
+        pc.cancel = function () {
+            //{...}
+            alert("You clicked the cancel button.");
+            $uibModalInstance.dismiss('cancel');
+        };
+    });
+
+
+    //Ajax
+    //--------------------------------------------------//
+
+    $(document).ready(function () {
+    alert('ok');
+    $('#Deadline').val(displayTodayDate());
+    });
+
+    var i = 1;
+    $("#Add").click(function () {
+        console.log("ok");
+
+        $.ajax({
+            url: '/Test/StudentDetailsDemo',
+            data: { i: i },
+            success: function (data) {
+                $("#partial").append(data);
+            }
+        })
+        i++;
+    })
+
+    $('.Deadline').change(function () {
+        alert('ok');
+        var date = $(this);
+
+        var date2 = new Date(date);
+        var date1 = new Date();
+
+        console.log(date2);
+        console.log(date1);
+
+        var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+        console.log(timeDiff);
+        var count = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        $('.DeadlineCounter').text(count);
+    });
+
+
+    $(document).ready(function () {
+        var oTable = $('#myDatatable').DataTable({
+            //"processing": true, // for show progress bar
+            //"serverSide": true, // for process server side
+            //"filter": false, // this is for disable filter (search box)
+            //"orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "url": '/TaskBucket/List',
+                "type": "get",
+                "datatype": "json"
+            },
+            "columns": [
+                { "data": "task_ID", "autoWidth": true },
+                { "data": "taskDate", "autoWidth": true },
+                { "data": "taskReference", "autoWidth": true },
+                { "data": "taskType_ID", "autoWidth": true },
+                { "data": "priority_ID", "autoWidth": true },
+                { "data": "status_ID", "autoWidth": true },
+                { "data": "Deadline", "autoWidth": true },
+                { "data": "Deadline_Counter", "autoWidth": true },
+                { "data": "AssignedTo", "autoWidth": true },
+                { "data": "client_ID", "autoWidth": true },
+                { "data": "product_ID", "autoWidth": true },
+                { "data": "module_ID", "autoWidth": true },
+                { "data": "function_ID", "autoWidth": true },
+                { "data": "reported_Date", "autoWidth": true },
+                { "data": "reportedUser_ID", "autoWidth": true }
+            ]
+        });
+    });*@
+
+
+
+
+
+
+@*<div data-pagination="" data-num-pages="numOfPages()"
+       data-current-page="curPage" data-max-size="maxSize"
+       data-boundary-links="true"></div>
+
+    //$scope.curPage = 1, $scope.itemsPerPage = 5, $scope.maxSize = 5;
+    //this.items = response.data.data;
+
+    //$scope.numOfPages = function () {
+    //    return Math.ceil(response.data.data.length / $scope.itemsPerPage);
+    //};
+
+    //$scope.$watch('curPage + numPerPage', function () {
+    //    var begin = (($scope.curPage - 1) * $scope.itemsPerPage),
+    //    end = begin + $scope.itemsPerPage;
+
+    //    $scope.Tasks = response.data.data.slice(begin, end);
+    //});*@
+
+
+@*<div class="col-sm-12">
+        <input type="button" value="Update" id="btnUpdate" class="btn btn-success" ng-click="saveTask(task)" />
+    </div>*@
+
+@*<a href="javascript:;" ng-click="GetDetails($index + (currentPage - 1) * itemsPerPage)" data-backdrop="false" class="btn btn-success"><i class="glyphicon glyphicon-eye-open"></i></a>*@
+
+@*<button class="btn btn-success btnEdit" data-bind="{{r.estimation_ID != "" ? r.estimation_ID : 0 }}"><i class="glyphicon glyphicon-edit"></i></button>*@

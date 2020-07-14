@@ -1,0 +1,474 @@
+﻿@{
+    ViewBag.Title = "TaskBucket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #TaskTable td {
+        word-wrap: break-word;
+    }
+    .sortorder:after {
+        content: '\25b2';
+    }
+
+    .sortorder.reverse:after {
+        content: '\25bc';
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+</style>
+
+<div ng-app="TaskBucketApp">
+    <div ng-controller="TaskBucketController" style="margin-top:15px; padding-left:5px; padding-right:5px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-6" style="height:50px;">
+                    <h2>{{message}}</h2>
+                </div>
+                <div class="col-sm-6" style="height:50px; padding-top:20px;">
+                    <p class="pull-right">
+                        <span style="margin-bottom:20px; margin-right:20px;">
+                            <input type="checkbox" ng-model="confirmed" checked="checked" ng-change="showAll()" id="showAll"> Show All
+                        </span>
+                        <a href="@Url.Action("Create", "Task")" target="_blank" class="btn btn-primary pull-right">Create Task</a>
+                        @*@Html.ActionLink("Create Tasks", "Create", "Task", null, htmlAttributes: new { @class = "btn btn-primary pull-right" })*@
+
+
+                    </p>
+                </div>
+            </div>
+            <hr style="margin-left:20px; margin-right:20px;" />
+        </div>
+        <div class="row">
+            <div class="container table-responsive">
+                <table class="col-sm-12">
+                    <tr>
+                        <td>Task :</td>
+                        <td><input type="text" placeholder="Search Task" class="form-control col-sm-3" style="width:220px;" ng-model="search.taskReference" /></td>
+                        <td>Module :</td>
+                        <td><input type="text" placeholder="Search Module" class="form-control col-sm-3" style="width:220px;" ng-model="search.module_ID" /></td> @*autocomplete="true"*@
+                        <td>Priority :</td>
+                        <td><input type="text" placeholder="Search Priority" class="form-control col-sm-3" style="width:220px;" ng-model="search.priority_ID" /></td>
+                    </tr>
+                    <tr>
+                        <td>Client :</td>
+                        <td><input type="text" placeholder="Search Client" class="form-control col-sm-3" style="width:220px;" ng-model="search.client_ID" /></td>
+                        <td>Task Type :</td>
+                        <td><input type="text" placeholder="Search Product" class="form-control col-sm-3" style="width:220px;" ng-model="search.taskType_ID" /></td>
+                        <td>Assigned To :</td>
+                        <td>
+                            <div class="input-group">
+                                <select class="form-control" ng-model="AssignedUser" ng-change="filterAssignedUser()">
+                                    <option ng-repeat="x in Users" value="{{x.user_ID}}">{{x.user}}</option>
+                                </select>
+                                <span class="input-group-addon">
+                                    <a href="javascript:;" style="color:#d9534f;" ng-click="ResetAll()"><i class="glyphicon glyphicon-remove" style="font-size:16px;"></i></a>
+                                </span>
+                            </div>
+                            @*<input type="text" placeholder="Search Assigned To" class="form-control col-sm-3" style="width:220px;" ng-model="search.AssignedTo" />*@
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Status :</td>
+                        <td><input type="text" placeholder="Search Function" class="form-control col-sm-3" style="width:220px;" ng-model="search.status" /></td>
+                        <td>Product :</td>
+                        <td><input type="text" placeholder="Search Product" class="form-control col-sm-3" style="width:220px;" ng-model="search.product_ID" /></td>
+                        <td>@*Task Type :*@</td>
+                        <td>@*<input type="text" placeholder="Search Product" class="form-control col-sm-3" style="width:220px;" ng-model="search.taskType_ID" />*@</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-3" style="margin:10px 10px;">
+                    <h4>New Tasks :  <span class="label label-primary">@ViewBag.NewStatus_Count</span></h4>
+                </div>
+                <div class="col-sm-3" style="margin:10px 10px;">
+                    <h4>Week to Deadline :  <span class="label label-primary">@ViewBag.Deadline_Count</span></h4>
+                </div>
+                <div class="col-sm-3" style="margin:10px 10px;">
+                    <h4>Due Tasks :  <span class="label label-primary">@ViewBag.Due_Count</span></h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container table-responsive">
+                <table ng-init="List()" id="TaskTable" class="table" style="table-layout:fixed; font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width:4%; text-align:right;">#</th>
+                            <th style="width:5%; text-align:center;" ng-click="sortBy('task_ID')" class="pointer">
+                                <p>
+                                    Task ID
+                                    <span class="sortorder" ng-show="propertyName === 'task_ID'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="display:none;">Estimation ID</th>
+                            <th style="width:10%; text-align:center;" ng-click="sortBy('taskDate')" class="pointer">
+                                <p>
+                                    Task Date
+                                    <span class="sortorder" ng-show="propertyName === 'taskDate'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="width:8%;">Module</th>
+                            <th style="width:8%;">Product</th>
+                            <th style="width:15%;">Task Reference</th>
+                            <th style="width:8%;" ng-click="sortBy('taskType_ID')" class="pointer">
+                                <p>
+                                    Task Type
+                                    <span class="sortorder" ng-show="propertyName === 'taskType_ID'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="width:8%;" ng-click="sortBy('priority_ID')" class="pointer">
+                                <p>
+                                    Priority
+                                    <span class="sortorder" ng-show="propertyName === 'priority_ID'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="width:8%;">Status</th>
+                            <th style="width:14%; text-align:center;">Deadline</th>
+                            <th style="width:6%; text-align:center;">Count</th>
+                            <th style="width:10%;">Assigned To</th>
+                            <th style="width:10%; display:none;">Assigned To Default</th>
+                            <th style="width:8%;">Client</th>
+                            <th style="width:10%; display:none;">Function</th>
+                            <th style="width:9%;" ng-click="sortBy('reported_Date')" class="pointer">
+                                <p>
+                                    Reported Date
+                                    <span class="sortorder" ng-show="propertyName === 'reported_Date'" ng-class="{reverse: reverse}"></span>
+                                </p>
+                            </th>
+                            <th style="display:none;">Reported User</th>
+                            <th style="width:4.5%;">@*<i class="glyphicon glyphicon-eye-open"></i>*@</th>
+                            <th style="width:4.5%;"></th>
+                            <th style="width:4.5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-show="(filterTasks).length > 0" ng-repeat="task in filterTasks = (Tasks | filter : search | orderBy:propertyName:reverse) | limitTo:itemsPerPage:itemsPerPage*(currentPage-1)" ng-class="{'text-danger' : task.isCancelled}">
+                            <td style="text-align:right;">{{$index + (currentPage - 1) * itemsPerPage + 1 }}</td>
+                            <td>{{task.task_ID}}</td>
+                            <td style="display:none;">{{task.estimation_ID}}</td>
+                            <td style="text-align:center;">{{task.taskDate | filterdate | date:'yyyy/MM/dd' }} </td>
+                            <td>{{task.module_ID}} </td>
+                            <td>{{task.product_ID}} </td>
+                            <td><span style="white-space:pre-wrap;">{{task.taskReference}}</span></td>
+                            <td>{{task.taskType_ID}} </td>
+                            <td>{{task.priority_ID}} </td>
+                            <td>{{task.status}} </td>
+                            <td><input type="date" id="Deadline" name="Deadline" class="form-control col-sm-2 Deadline" ng-model="task.DeadlineDate" value="{{task.DeadlineDate | date:'yyyy-MM-dd'}}" ng-change="DeadlineSave($index + (currentPage - 1) * itemsPerPage, task)" ng-init="DeadlineCounter(task.DeadlineDate, $index + (currentPage - 1) * itemsPerPage)" /> </td>
+                            <td class="DeadlineCounter"><span class="pull-right">{{task.DeadlineCounter}}</span></td>
+                            <td>
+                                <select class="form-control" ng-model="task.AssignedTo" ng-change="changeAssignedUser(task)">
+                                    <option ng-repeat="x in Users" ng-selected="x.user_ID == task.AssignedTo" value="{{x.user_ID}}">{{x.user}}</option>
+                                </select>
+                            </td>
+                            <td style="display:none;">{{task.AssignedTo}} </td>
+                            <td>{{task.client_ID}} </td>
+                            <td style="display:none;">{{task.function_ID}} </td>
+                            <td>{{task.reported_Date | filterdate | date:'yyyy/MM/dd'}} </td>
+                            <td style="display:none;">{{task.reportedUser_ID}} </td>
+                            <td><a href="javascript:;" class="btn btn-primary" ng-click="ViewTask_Details(task.task_ID)"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                            <td>
+                                <div ng-if="task.estimation_ID > 0">
+                                    <a href="@Url.Action("Edit", "TaskEstimation" )?estimation_ID={{task.estimation_ID}}" target="_blank" ng-class="{'btn btn-success': task.isApproved, 'btn btn-info': !task.isApproved}" class="savedEstimation"><i class="glyphicon glyphicon-pencil"></i></a> @*ng-if="task.isApproved" ng-class="'btn-info'"*@
+                                </div>
+                                <div ng-if="task.estimation_ID == 0 ">
+                                    <a href="@Url.Action("Create", "TaskEstimation" )?task_ID={{task.task_ID}}" target="_blank" class="btn btn-primary pendingEstimation"><i class="glyphicon glyphicon-plus"></i></a>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Edit", "Task" )?task_ID={{task.task_ID}}" target="_blank" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="20">
+                                <div class="text-center text-info" ng-show="(filterTasks|filter:search).length==0">--- No Records Found ---</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <p class="form-inline">
+                                    View <select class="form-control" style="width:50px;" ng-options="x for x in records" ng-model="viewby" ng-change="setItemsPerPage(viewby)"></select> Records. | Page No : {{currentPage}} | Total Records : {{filterTasks.length}}
+                                </p>
+                            </td>
+                            <td colspan="4" style="padding:8px; text-align:center;" >
+                                <p class="text-success" style="background-color:#fff;">{{successmessage}}</p>
+                            </td>
+                            <td colspan="7">
+                                <uib-pagination class="pagination-sm pagination pull-right" total-items="filterTasks.length" ng-model="currentPage" max-size="maxSize"
+                                                ng-change="pageChanged()" boundary-links="true" force-ellipses='true' num-pages="numPages" items-per-page="itemsPerPage">
+                                </uib-pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        var TimeSheetApp = angular.module('TaskBucketApp', ['ui.bootstrap']);
+        TimeSheetApp.controller('TaskBucketController', function ($scope, $http, $filter, $uibModal) {
+            $scope.message = "Task List";
+            $scope.successmessage = "";
+            $scope.confirmed = false;
+            $scope.records = [5, 10, 15, 20, 25, 30];
+            $scope.viewby = 10;
+            $scope.currentPage = 1;
+            $scope.itemsPerPage = $scope.viewby;
+            $scope.maxSize = 5;
+            $scope.AssignedUser = "";
+            $scope.propertyName = 'taskDate';
+            $scope.reverse = true;
+
+            $http.get("@Url.Action("Users", "Main")")
+            .then(function (response) {
+                console.log(response.data);
+
+                $scope.Users = [];
+                angular.forEach(response.data, function (value, key) {
+                    $scope.Users.push(value);
+                    //console.log($scope.Users);
+                });
+            });
+
+            $scope.List = function () {
+                $http.get("@Url.Action("List", "TaskBucket")?ShowAll=" + $scope.confirmed + "&AssignedUser=" + $scope.AssignedUser)  //
+                .then(function (response) {
+                    console.log(response);
+                    //console.log(response.data.data.length);
+
+                    $scope.Tasks = [];
+                    $scope.AssignedTo = {};
+                    angular.forEach(response.data.data, function (value, key) {
+                        console.log(value);
+
+
+                        $scope.Tasks.push({
+                            task_ID: value.task_ID,
+                            estimation_ID: value.estimation_ID,
+                            taskDate: value.taskDate,
+                            taskReference: value.taskReference,
+                            taskType_ID: value.taskType_ID,
+                            priority_ID: value.priority_ID,
+                            status_ID: value.status_ID,
+                            status: value.status,
+                            AssignedTo: value.AssignedTo,
+                            DeadlineDate: $scope.FilterDate(value.DeadlineDate),
+                            DeadlineCounter: value.DeadlineCounter,
+                            client_ID: value.client_ID,
+                            product_ID: value.product_ID,
+                            module_ID: value.module_ID,
+                            function_ID: value.function_ID,
+                            reported_Date: value.reported_Date,
+                            reportedUser_ID: value.reportedUser_ID,
+                            isApproved: value.isApproved,
+                            isCancelled: value.isCancelled,
+                        });
+                    });
+                });
+            }
+
+            $scope.sortBy = function (propertyName) {
+                $scope.reverse = ($scope.propertyName === propertyName) ? !$scope.reverse : false;
+                $scope.propertyName = propertyName;
+            };
+
+            $scope.filterAssignedUser = function () {
+                $scope.List();
+            }
+
+            $scope.pageChanged = function () {
+                var startPos = ($scope.currentPage - 1) * 3;
+                console.log($scope.currentPage);
+            };
+
+            $scope.setItemsPerPage = function (num) {
+                $scope.itemsPerPage = num;
+                $scope.currentPage = 1; //reset to first page
+            };
+
+            $scope.ResetAll = function () {
+                $scope.AssignedUser = "";
+                $scope.List();
+            }
+
+            $scope.showAll = function () {
+                $scope.List();
+            }
+
+            $scope.changeAssignedUser = function (task) {
+                console.log("Assign User" + task.task_ID + " - " + task.AssignedTo);
+
+                $http({
+                    url: '@Url.Action("UpdateAssignedTo", "TaskBucket")',
+                    dataType: 'json',
+                    method: 'POST',
+                    data: JSON.stringify({ "sTaskID": task.task_ID, "sAssignedTo": task.AssignedTo })
+                }).then(function (data) {
+                    if (data.data.status == true) {
+                        console.log('Successfully Changed Assign User ' + task.task_ID);
+                        $scope.successmessage = '-- Updated ' + task.task_ID + ' Successfully --';
+                        $('.text-success').fadeIn().delay(2000).fadeOut();
+                    }
+                    else {
+                        alert('Error! \nSaving Assign User');
+                    }
+                });
+            };
+
+            $scope.DeadlineSave = function ($index, task) {
+                console.log(task.DeadlineDate);
+                var date = new Date(task.DeadlineDate);
+
+                console.log("Index : " + $index + ", Deadline : " + task.task_ID + " - " + date);
+                $http({
+                    url: '@Url.Action("UpdateDeadline", "TaskBucket")',
+                    dataType: 'json',
+                    method: 'POST',
+                    data: JSON.stringify({ "sTaskID": task.task_ID, "dtDeadline": date })
+                }).then(function (data) {
+                    if (data.data.status == true) {
+                        console.log('Successfully Changes Deadline ' + task.task_ID);
+                        $scope.DeadlineCounter(date, $index);
+                        $scope.successmessage = '-- Updated ' + task.task_ID + ' Successfully --';
+                        $('.text-success').fadeIn().delay(2000).fadeOut();
+                    }
+                    else {
+                        alert('Error \nSaving Deadline');
+                    }
+                });
+            }
+
+            $scope.DeadlineCounter = function (DeadlineDate, $index) {
+                console.log("Index : " + $index);
+                var deadlineDate = new Date(DeadlineDate);
+                var toDay = new Date();
+
+                var timeDiff = "";
+
+                //if (deadlineDate > toDay) {
+                timeDiff = deadlineDate.getTime() - toDay.getTime();
+                //} else {
+                //    timeDiff = toDay.getTime() - deadlineDate.getTime();
+                //}
+
+
+                console.log(timeDiff);
+                //console.log(timeDiff / (1000 * 3600 * 24));
+                var Count = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                console.log("Deadline Count : " + Count);
+
+                $scope.Tasks[$index].DeadlineCounter = Count;
+            }
+
+            $scope.FilterDate = function (value) {
+                console.log(value);
+
+                var ReportedDate = new Date(parseInt(value.substr(6)));
+                console.log(ReportedDate);
+
+                return ReportedDate;
+            };
+
+            $scope.ViewTask_Details = function (task_ID) {
+                console.log("Task : " + task_ID);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Details", "Task" )?task_ID=' + task_ID,
+                    controller: ModalInstanceCtrl,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                }, function () {
+                    console.log('Modal dismissed at: ' + new Date());
+                });
+            };
+        });
+
+        TimeSheetApp.filter("filterdate", function () {
+            var re = /\/Date\(([0-9]*)\)\//;
+            return function (x) {
+                var m = x.match(re);
+                if (m) return new Date(parseInt(m[1]));
+                else return null;
+            };
+        });
+
+        var ModalInstanceCtrl = function ($scope, $uibModalInstance) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+        };
+
+        //TaskBucketApp.directive('autocomplete', function () {
+        //    return {
+        //        restrict: 'A',
+        //        require: 'ngModel',
+        //        link: function (scope, element, attrs, ngModelCtrl) {
+        //            var availableTags = [
+        //              "SAS",
+        //              "SCS",
+        //              "ACC",
+        //              "BSS",
+        //              "TMS",
+        //            ];
+        //            element.autocomplete({
+        //                source: availableTags,
+        //                select: function (event, ui) {
+        //                    console.log(ui);
+        //                    ngModelCtrl.$setViewValue(ui.item);
+        //                    scope.$apply();
+        //                }
+        //            });
+        //        }
+        //    }
+        //});
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<div class="row">
+    <div class="container">
+        <p class="text-success">@Session["Message"]</p>
+        <p class="text-success" style="font-size:12px; display:none;">{{successmessage}}</p>
+    </div>
+</div>*@

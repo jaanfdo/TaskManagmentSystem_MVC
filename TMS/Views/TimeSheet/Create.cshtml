@@ -1,0 +1,720 @@
+﻿
+@{
+    ViewBag.Title = "Create Time Sheet";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+<div class="container">
+    <form id="FormTimeSheet" method="post" action="@Url.Action("SaveTimeSheet", "TimeSheet")">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <div class="col-md-6">
+                    <label for="estimation_ID" class="control-label col-md-4">Time Sheet ID</label>
+                    <div class="col-md-8">
+                        <input type="text" name="timeSheet_ID" id="timeSheet_ID" class="form-control" readonly />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="timeSheetDate" class="control-label col-md-4">Time Sheet Date</label>
+                    <div class="col-md-8">
+                        <input type="date" name="timeSheetDate" id="timeSheetDate" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="subTask_ID" class="control-label col-md-2">Sub Task ID</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("subTask_ID", null, "Select", htmlAttributes: new { @id = "subTask_ID", @class = "form-control  col-md-6" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks" class="control-label col-md-2">Remarks</label>
+                <div class="col-md-10">
+                    <textarea name="remarks" id="remarks" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="task_ID" class="control-label col-md-2">Task ID</label>
+                <div class="col-md-6" id="SearchValues">
+                    <div class="form-inline">
+                        <input type="hidden" name="task_ID" id="task_ID" class="form-control task_ID" />
+                        <input type="text" name="task" id="task" class="form-control task" placeholder="Search Here by Task Name..." />
+                        <button type="button" id="btnAdd" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="SearchValues2">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width:3%">#</th>
+                            <th style="width:7%">Task ID</th>
+                            <th style="width:30%">Task Reference</th>
+                            <th style="width:8%">Utilized Hours</th>
+                            <th style="width:0%; display:none;">Status ID</th>
+                            <th style="width:15%">Status</th>
+                            <th style="width:40%">Remarks</th>
+                            <th style="width:5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblDetails"></tbody>
+                    @*<tfoot id="tblDetails_Footer" style="background-color:darkgray;"></tfoot>*@
+                </table>
+            </div>
+
+            <div class="form-group">
+                <p>Total Utilized Hours : <span class="label label-primary" id="totalUtilizedHours"></span></p>
+            </div>
+
+            <div class="form-group">
+                <hr />
+                <div class="col-md-offset-9 col-md-3">
+                    <input type="button" value="New" id="btnNew" class="btn btn-primary" />
+                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(document).on("keydown", "input", function (e) {
+                if (e.which == 13) e.preventDefault();
+            });
+            clearFields();
+            LoadTask();
+
+            autosize($('textarea'));
+        });
+
+        $('#btnSave').click(function () {
+            if (CheckEmptyFields()) {
+                if (CheckDataGrid_Empty()) {
+                    if (CheckGridValue()) {
+                        if (CheckGridNumbervalue()) {
+                            var detailArr = [];
+                            detailArr.length = 0;
+
+                            var iRow = 1;
+                            $.each($("#tblDetails tr"), function () {
+                                detailArr.push({
+                                    line_No: iRow,
+                                    timeSheet_ID: $("#timeSheet_ID").val(),
+                                    task_ID: $(this).find('td:eq(1)').html(),
+                                    utilizedHours: $(this).find('.utilizedHours').val(),
+                                    status_ID: $(this).find('.status_ID').val(),
+                                    remarks: $(this).find('.remarks').val()
+                                });
+                                iRow++;
+                            });
+
+                            var data = {
+                                timeSheet_ID: $("#timeSheet_ID").val(),
+                                timeSheetDate: $("#timeSheetDate").val(),
+                                subTask_ID: $("#subTask_ID").val(),
+                                remarks: $("#remarks").val(),
+                                totalUtilizedHours: $("#totalUtilizedHours").text(),
+                                TimeSheetDetails: detailArr
+                            };
+
+                            console.log(JSON.stringify(data));
+
+                            var url = $('#FormTimeSheet').attr('action');
+                            console.log(url);
+                            $.ajax({
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                type: 'POST',
+                                url: url,
+                                data: JSON.stringify(data),
+                                success: function (data) {
+                                    console.log(JSON.stringify(data));
+                                    if (data.status) {
+                                        $('#timeSheet_ID').val(data.TimeSheetID);
+                                        $("#btnSave").attr("disabled", "disabled");
+                                        alert(data.Message);
+                                        window.location.reload();
+                                    }
+                                    else {
+                                        alert(data.Message);
+                                    }
+                                },
+                                error: function () {
+                                    alert("Error!")
+                                }
+                            });
+                        }
+                        else {
+                            alert('Allow Numbers Only... \nUtilized Hours');
+                        }
+                    }
+                    else {
+                        alert('Fill Table Values...');
+                    }
+                }
+            }
+        });
+
+        $('#btnNew').click(function () {
+            clearFields();
+        });
+
+        var iRow = "";
+        var index = 1;
+        $('#btnAdd').click(function () {
+            if ($.trim($("#task_ID").val()) == "") {
+                alert('Required Fields');
+            } else {
+                var task_ID = $('#task_ID').val();
+                var value = highlightDuplicates(task_ID, 1);
+
+                if (value == false) {
+                    var row = $('#tblDetails').find('tr');
+
+
+                    //if (row.length > 0) {
+                    //    // Get last id
+                    //    console.log($('#tblDetails tr'));
+                    //    console.log($('#tblDetails tr:nth-child(5)'));
+
+                    //    console.log($('#tblDetails tr input[type=text]:nth-child(2)').last().val());
+
+                    //    var lastname_id = $('#tblDetails tr:nth-child(5)').last().attr('id');
+                    //    console.log(lastname_id);
+                    //    var split_id = lastname_id.split('_');
+
+                    //    // New index
+                    //    index = Number(split_id[1]) + 1;
+                    //}
+
+                    var newRow = '';
+                    newRow = '<tr>' +
+                            '<td>' + iRow + '</td>' +
+                            '<td>' + $('#task_ID').val() + '</td>' +
+                            '<td>' + $('#task').val() + '</td>' +
+                            '<td>' + '<input type="text" name="utilizedHours" id="utilizedHours" onchange="Cal()" onkeyup="Cal_KeyUp()" class="form-control utilizedHours" />' + '</td>' +
+                            '<td style="display:none;">' + '<input type="hidden" name="status_ID" id="status_ID_' + index + '" class="form-control status_ID" />' + '</td>' +
+                            '<td>' + '<input type="text" name="status" id="status_' + index + '" placeholder="Search Here..." class="form-control status" />' + '</td>' +
+                            '<td>' + '<textarea name="remarks" id="remarks" class="form-control remarks" rows="1"></textarea>' + '</td>' +
+                            //'<td>' + '<a href="javascript:;" class="btn btn-success item-add""><i class="glyphicon glyphicon-ok"></i></a>' + '</td>' +
+                            '<td>' + '<a href="javascript:;" class="btn btn-danger item-delete""><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+                            '</tr>';
+
+                    //append clone row
+                    $('#tblDetails').append(newRow);
+
+                    CalRowCount();
+
+                    LoadStatus();
+                    autosize($('textarea'));
+
+                    //clear select data
+                    $('#task_ID').val('');
+                    $('#task').val('');
+
+                    index++;
+                    //iRow++;
+                } else {
+                    alert('Duplicated Items ' + task_ID);
+
+                    $('#task_ID').val('');
+                    $('#task').val('');
+                }
+            }
+        });
+
+        $('#tblDetails').on('click', '.item-delete', function () {
+            $(this).parents('tr').remove();
+            Cal();
+        });
+
+
+        function clearFields() {
+            $('#timeSheetDate').val(displayTodayDate());
+
+            $("#timeSheet_ID").val("Auto Generated");
+            $('#subTask_ID').val('');
+            $('#remarks').val('');
+            $('#task_ID').val('');
+            $('#task').val('');
+            $('#totalUtilizedHours').text('0.00');
+            $('#remarks').text('');
+
+            $("#tblDetails").empty();
+        }
+
+        function LoadStatus() {
+            $(".status").autocomplete({
+                appendTo: "#SearchValues2",
+                autoFocus: true,
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SearchStatus", "Main")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                //console.log(item);
+                return $("<li>")
+                    .append("<div>" + item.status_ID + "  " + item.status + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+
+        $("#tblDetails").on('keyup', '.status', function () {
+            var id = this.id;
+            var splitid = id.split('_');
+            var index = splitid[1];
+
+            console.log(index);
+            // Initialize jQuery UI autocomplete
+            $('#' + id).autocomplete({
+                appendTo: "#SearchValues2",
+                autoFocus: true,
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SearchStatus", "Main")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    console.log(ui.item.status_ID);
+                    $("#status_ID_" + index).val(ui.item.status_ID);
+                    $("#status_" + index).val(ui.item.status);
+
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                //console.log(item);
+                return $("<li>")
+                    .append("<div>" + item.status_ID + "  " + item.status + "</div>")
+                    .appendTo(ul);
+            };
+        });
+
+        function LoadTask() {
+            $("#task").autocomplete({
+                appendTo: "#SearchValues",
+                autoFocus: true,
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SearchTasks", "Task")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    })
+                },
+                select: function (event, ui) {
+                    console.log(ui.item.taskReference);
+                    $("#task_ID").val(ui.item.task_ID);
+                    $("#task").val(ui.item.taskReference);
+
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                //console.log(item);
+                return $("<li>")
+                    .append("<div>" + item.task_ID + "  " + item.taskReference + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+        function CalRowCount() {
+            var iRow = 1;
+            var row = $('#tblDetails').find('tr');
+            for (i = 0; i < row.length; i++) {
+                $('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(0)").html(iRow);
+
+                iRow++;
+            }
+        }
+
+        function Cal() {
+            var sum = 0;
+            var row = $('#tblDetails').find('tr');
+            for (i = 0; i < row.length; i++) {
+                var value = $('#tblDetails').find('tr:eq(' + i + ')').find(".utilizedHours").val();
+                console.log(value);
+
+                if (!isNaN(value) && value.length != 0) {
+                    console.log(value);
+                    sum += parseFloat(value);
+                }
+            }
+
+            $('#totalUtilizedHours').text(sum.toFixed(2));
+        }
+
+        function Cal_KeyUp() {
+            if ($(".utilizedHours").val().length > 1) {
+                Cal()
+            }
+        }
+
+        function CheckEmptyFields() {
+            var isAllValid = true;
+            if ($('#subTask_ID').val() == '') {
+                isAllValid = false;
+                alert('Fill Task');
+            }
+
+            return isAllValid;
+        }
+
+        function CheckDataGrid_Empty() {
+            var isAllValid = true;
+            if ($("#tblDetails tr").length == 0) {
+                isAllValid = false;
+                alert('Fill Detail Table...');
+            }
+
+            return isAllValid;
+        }
+
+        function highlightDuplicates(val, rowIndex) {
+            var status = false;
+            $.each($("#tblDetails tr"), function () {
+                var subTask = $(this).find('td:eq(' + rowIndex + ')').html();
+                if (val == subTask) {
+                    console.log('Duplicate ' + true);
+                    status = true;
+                }
+            });
+
+            return status;
+        }
+
+        function CheckGridValue() {
+            var status = true;
+            //console.log('ok');
+            $.each($("#tblDetails tr"), function () {
+                //$(this).find('.utilizedHours').val(),
+                //$(this).find('.status_ID').val(),
+
+                var utilizedHours = $(this).find(".utilizedHours").val();
+                var status_ID = $(this).find(".status_ID").val();
+
+                console.log(utilizedHours);
+                console.log(status_ID);
+
+                if (status_ID.length == 0) {
+                    console.log(false);
+                    status = false;
+                }
+                if (utilizedHours.length == 0) {
+                    console.log(false);
+                    status = false;
+                }
+            });
+
+            return status;
+        }
+
+        function CheckGridNumbervalue() {
+            var status = true;
+
+            $.each($("#tblDetails tr"), function () {
+                var utilizedHours = $(this).find(".utilizedHours").val();
+
+                console.log(utilizedHours);
+
+                if (isNaN(utilizedHours)) {
+                    console.log(false);
+                    status = false;
+                }
+            });
+
+            return status;
+        }
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*////add newly added value to tbody
+            //$('#tblDetails_Footer').on('click', '.item-add', function () {
+            //    var raw = $(this).closest('tr');
+            //    var taskID = raw.find('td:eq(1)').text();
+            //    var task = raw.find('td:eq(2)').text();
+            //    var utilizedHours = raw.find('.utilizedHours').val();
+            //    var status_ID = raw.find('.status_ID').val();
+            //    var status = raw.find('.status_ID option:selected').text();
+            //    var remarks = raw.find('.remarks').val();
+
+            //    if (utilizedHours > 0) {
+            //        if (status_ID != 0) {
+            //            if (remarks != "") {
+            //                console.log('Item Add : ' + raw + ' - ' + taskID + ' - ' + utilizedHours + ' - ' + status_ID + ' - ' + status + ' - ' + remarks);
+
+            //                var newRow = '';
+            //                newRow = '<tr>
+        ' +
+        //                        '
+        <td>' + iRow + '</td>' +
+        //                        '
+        <td>' + taskID + '</td>' +
+        //                        '
+        <td>' + task + '</td>' +
+        //                        '
+        <td>' + utilizedHours + '</td>' +
+        //                        '
+        <td>' + status + '</td>' +
+        //                        '
+        <td style="display:none;">' + status_ID + '</td>' +
+        //                        '
+        <td>' + remarks + '</td>' +
+        //                        '
+        <td>' + '<a href="javascript:;" class="btn btn-info item-edit" "><i class="glyphicon glyphicon-edit"></i></a>' + '</td>' +
+        //                        '
+        <td>' + '<a href="javascript:;" class="btn btn-danger item-delete" "><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+        //                        '
+    </tr>';
+
+            //                //append clone row
+            //                $('#tblDetails').append(newRow);
+
+            //                Cal();
+            //                CalRowCount();
+            //                raw.remove();
+            //            }
+            //            else {
+            //                alert('Fill the Detail.. \n Remarks');
+            //            }
+            //        }
+            //        else {
+            //            alert('Fill the Detail.. \n Status');
+            //        }
+            //    }
+            //    else {
+            //        alert('Fill the Detail.. \n Utilized');
+            //    }
+            //});
+
+            ////edited value set to same row
+            //$('#tblDetails_Footer').on('click', '.item-save', function () {
+            //    var raw = $(this).closest('tr');
+            //    var taskID = raw.find('td:eq(1)').text();
+            //    var utilizedHours = raw.find('.utilizedHours').val();
+            //    var status_ID = raw.find('.status_ID').val();
+            //    var status = raw.find('.status_ID option:selected').text();
+            //    var remarks = raw.find('.remarks').val();
+
+            //    if (utilizedHours > 0) {
+            //        if (status_ID != 0) {
+            //            if (remarks != "") {
+            //                console.log('Item Update : ' + raw + ' - ' + taskID + ' - ' + utilizedHours + ' - ' + status_ID + ' - ' + status + ' - ' + remarks);
+
+            //                var row = $('#tblDetails').find('tr');
+            //                for (i = 0; i < row.length; i++) {
+            //                    console.log($('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(1)").html());
+
+            //                    if ($('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(1)").html() == taskID) {
+            //                        $('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(3)").html(utilizedHours);
+            //                        $('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(4)").html(status);
+            //                        $('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(5)").html(status_ID);
+            //                        $('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(6)").html(remarks);
+            //                    }
+            //                }
+
+            //                Cal();
+            //                raw.remove();
+            //            }
+            //            else {
+            //                alert('Fill the Detail.. \n Remarks');
+            //            }
+            //        }
+            //        else {
+            //            alert('Fill the Detail.. \n Status');
+            //        }
+            //    }
+            //    else {
+            //        alert('Fill the Detail.. \n Utilized');
+            //    }
+            //});
+
+            ////add table row to table footer
+            //$('#tblDetails').on('click', '.item-edit', function () {
+            //    var raw = $(this).closest('tr');
+            //    var iRow = raw.find('td:eq(0)').text();
+            //    var TaskID = raw.find('td:eq(1)').text();
+            //    var Task = raw.find('td:eq(2)').text();
+
+            //    var rowCount = $('#tblDetails_Footer tr').length;
+            //    if (rowCount == 0) {
+            //        var newRow = '';
+            //        newRow = '<tr>
+        ' +
+        //                '
+        <td>' + iRow + '</td>' +
+        //                '
+        <td>' + TaskID + '</td>' +
+        //                '
+        <td>' + Task + '</td>' +
+        //                '
+        <td>' + '<input type="text" name="utilizedHours" id="utilizedHours" class="form-control utilizedHours" />' + '</td>' +
+        //                '
+        <td>' + '<select id="status_ID" class="form-control status_ID"></select>' + '</td>' +
+        //                '
+        <td style="display:none;"></td>' +
+        //                '
+        <td>' + '<input type="text" name="remarks" id="remarks" class="form-control remarks" />' + '</td>' +
+        //                '
+        <td>' + '<a href="javascript:;" class="btn btn-success item-save"><i class="glyphicon glyphicon-ok"></i></a>' + '</td>' +
+        //                '
+        <td>' + '<a href="javascript:;" class="btn btn-danger item-delete" "><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+        //                '
+    </tr>';
+
+            //        //append clone row
+            //        $('#tblDetails_Footer').append(newRow);
+            //        LoadStatus();
+            //    } else {
+            //        alert('Please Complete Previous Record...');
+            //    }
+            //});
+
+                $('#tblDetails_Footer').on('click', '.item-delete', function () {
+                $(this).parents('tr').remove();
+            });
+*@
+
+
+
+@*$.ajax({
+        type: "GET",
+        url: '@Url.Action("getStatus", "TimeSheet")',
+        success: function (data) {
+            if (data.length > 0) {
+                $('.status_ID').html('');
+
+                $('.status_ID').append($('<option/>').val('0').text('Select'));
+                $.each(data, function (i, val) {
+                    $('.status_ID').append($('<option/>').val(val.status_ID).text(val.status));
+                });
+            }
+
+        }
+    });*@
+
+@*@using (Html.BeginForm("SaveTimeSheet", "tbl_pmsTxTimeSheet", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.timeSheet_ID, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.timeSheet_ID, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.timeSheet_ID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.timeSheetDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.timeSheetDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.timeSheetDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.subTask_ID, "subTask_ID", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("subTask_ID", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.subTask_ID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.remarks, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.remarks, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.remarks, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <a href="#" id="Add" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></a>
+                <a href="#" id="Remove" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i></a>
+
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Task ID</th>
+                            <th>Task Refference</th>
+                            <th>Utilized Hours</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="partial">
+                        @{Html.RenderAction("Create", "tbl_pmsTxTimeSheet_Detail");}
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.totalUtilizedHours, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.totalUtilizedHours, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.totalUtilizedHours, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+                            }*@

@@ -1,0 +1,182 @@
+﻿@model TMS.tbl_pmsTxTaskEstimation
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>tbl_pmsTxTaskEstimation</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_pmsTxTask.taskReference)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_pmsTxTask.taskReference)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.estimationDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.estimationDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.totalEstimatedHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.totalEstimatedHours)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.isApproved)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.isApproved)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.isCancelled)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.isCancelled)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.createUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.createUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.modifiedUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.modifiedUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.deletedUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.deletedUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.approvedYser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.approvedYser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateCreated)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateCreated)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateModified)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateModified)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateDeleted)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateDeleted)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateApproved)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateApproved)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.company_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.company_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.companyBranch_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.companyBranch_ID)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.estimation_ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script>
+
+    LoadItems();
+
+    function LoadItems() {
+        //var OrderNo = $('#txnDetails dd:first').text();
+        var OrderNo = $("#orderNo").text();
+        console.log($.trim(OrderNo));
+
+        $.ajax({
+            type: "GET",
+            url: '../ListData/?orderNo=' + $.trim(OrderNo),
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                if (data.length > 0) {
+                    var html = '';
+                    var i;
+                    for (i = 0; i < data.length; i++) {
+                        html += '<tr>' +
+                            '<td>' + data[i].ProductName + '</td>' +
+                            '<td>' + data[i].ProductID + '</td>' +
+                            '<td>' + data[i].Quantity + '</td>' +
+                            '<td>' + data[i].Rate + '</td>' +
+                            '<td>' + data[i].Total + '</td>' +
+                            '</td>' +
+                        '</tr>';
+                    }
+                    $('#detailsTable').html(html);
+
+                } else {
+                    var $noData = $('<div/>').html('No Data Found!');
+                    $('#detailsTable').html($noData);
+                }
+            }
+        })
+    }
+</script>
+
+}

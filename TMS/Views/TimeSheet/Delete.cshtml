@@ -1,0 +1,65 @@
+﻿@model TMS.tbl_pmsTxTimeSheet
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>tbl_pmsTxTimeSheet</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.timeSheet_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.timeSheet_ID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_genMasSubTask.subTaskName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_genMasSubTask.subTaskName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.timeSheetDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.timeSheetDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.remarks)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.remarks)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.totalUtilizedHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.totalUtilizedHours)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-danger" /> 
+            @*@Html.ActionLink("Back to List", "Index")*@
+        </div>
+    }
+
+</div>

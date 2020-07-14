@@ -1,0 +1,131 @@
+﻿@model TMS.tbl_pmsTxTimeSheet
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>tbl_pmsTxTimeSheet</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_genMasSubTask.subTaskName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_genMasSubTask.subTaskName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.timeSheetDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.timeSheetDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.remarks)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.remarks)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.totalUtilizedHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.totalUtilizedHours)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.isCancelled)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.isCancelled)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.user_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.user_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.createUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.createUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.modifiedUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.modifiedUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.deletedUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.deletedUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateCreated)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateCreated)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateModified)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateModified)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dateDeleted)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dateDeleted)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.company_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.company_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.companyBranch_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.companyBranch_ID)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.timeSheet_ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

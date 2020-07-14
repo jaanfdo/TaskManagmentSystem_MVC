@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title - SEACC TMS</title>
+    <link rel="icon" href="@Url.Content("~/TMS.ico")" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Content/datatables.min.css" rel="stylesheet" />
+    <link href="~/Content/ui-bootstrap-csp.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+</head>
+<body>
+    @RenderBody()
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angularjs/angular-route.min.js"></script>
+    <script src="~/Scripts/ui-bootstrap-tpls-1.0.3.js"></script>
+    <script src="~/Scripts/datatables.min.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/autosize.min.js"></script>
+    <script src="~/Scripts/Formats.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

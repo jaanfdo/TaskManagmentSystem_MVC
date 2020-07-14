@@ -1,0 +1,14 @@
+﻿@model SEACC_TMS_New.tbl_pmsTxTimeSheet_Detail
+
+@{
+    int i = ViewBag.i == null ? 0 : ViewBag.i;
+}
+
+<tr>
+    <td></td>
+    <td></td>
+    <td>@Html.DropDownList("task_ID", null, htmlAttributes: new { @Name = "[" + i + "].task_ID", @class = "form-control" })</td>
+    <td>@Html.EditorFor(model => model.utilizedHours, new { htmlAttributes = new { @Name = "[" + i + "].utilizedHours", @class = "form-control" } })</td>
+    <td>@Html.EditorFor(model => model.remarks, new { htmlAttributes = new { @Name = "[" + i + "].remarks", @class = "form-control" } })</td>
+    <td></td>
+</tr>

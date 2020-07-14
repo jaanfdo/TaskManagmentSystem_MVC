@@ -1,0 +1,18 @@
+﻿@using ReportViewerForMvc
+
+@{
+    ViewBag.Title = "ReportViewer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts {
+    <style type="text/css">
+        iframe {
+            height: 660px;
+            width: 960px;
+        }
+    </style>
+}
+@*<h2>Report Viewer</h2>*@
+
+@Html.ReportViewer(ViewBag.ReportViewer as Microsoft.Reporting.WebForms.ReportViewer)

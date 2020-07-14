@@ -1,0 +1,559 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<style>
+    .glyphicon.glyphicon-user, .glyphicon.glyphicon-home,
+    .glyphicon.glyphicon-picture, .glyphicon.glyphicon-time {
+        font-size: 5em;
+    }
+
+    .huge {
+        font-size: 40px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">SEACC TMS Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-success">
+
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="container">
+                        <div class="col-xs-3">
+                            <i class="glyphicon glyphicon-user"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">@ViewBag.Users</div>
+                            <div>Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="glyphicon glyphicon-arrow-right"></i></span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="container">
+                        <div class="col-xs-3">
+                            <i class="glyphicon glyphicon-home"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">@ViewBag.NewStatus_Count</div>
+                            <div>New Tasks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="glyphicon glyphicon-arrow-right"></i></span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-info">
+
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="container">
+                        <div class="col-xs-3">
+                            <i class="glyphicon glyphicon-time"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">@ViewBag.Deadline_Count</div>
+                            <div>Week to Deadline </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="glyphicon glyphicon-arrow-right"></i></span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-warning">
+
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="container">
+                        <div class="col-xs-3">
+                            <i class="glyphicon glyphicon-picture"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">@ViewBag.Due_Count</div>
+                            <div>Due Tasks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="glyphicon glyphicon-arrow-right"></i></span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="container">
+                    <i class="fa fa-bell fa-fw"></i> User Details
+                </div>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="container">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-comment fa-fw"></i> Company Code :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["company_ID"]</em>
+                            </span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-twitter fa-fw"></i> Company :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["companyName"]</em>
+                            </span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-envelope fa-fw"></i> Company Branch Code :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["companyBranch_ID"]</em>
+                            </span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-tasks fa-fw"></i> Company Branch :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["branchName"]</em>
+                            </span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-upload fa-fw"></i> User Code :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["user_ID"]</em>
+                            </span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-bolt fa-fw"></i> User Name :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["userName"]</em>
+                            </span>
+                        </a>
+                        <a href="#" class="list-group-item">
+                            <i class="fa fa-warning fa-fw"></i> User Group :
+                            <span class="pull-right text-muted small">
+                                <em>@Session["userGroup"]</em>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="container">
+                    <canvas id="LinePrint" class="chartjs-render-monitor" style="display: block;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <canvas id="DoughtNutPrint" class="chartjs-render-monitor" style="display: block;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <canvas id="BarPrint" class="chartjs-render-monitor" style="display: block;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(document).on("keydown", "input", function (e) {
+                if (e.which == 13) e.preventDefault();
+            });
+
+            ChartBar();
+            ChartLine();
+            ChartDoughNut();
+
+        });
+
+        function ChartBar() {
+            var date = new Date();
+            var newdate = new Date(date);
+            newdate.setDate(date.getDate() - 7);
+
+            var data = 'Task=&Product=&Client=&FromDate=' + displayDate(newdate) + '&ToDate=' + displayTodayDate();
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'GET',
+                url: '@Url.Action("LoadTEstimatedUtilized", "Reports")',
+                data: data,
+                success: function (data) {
+                    console.log(data.Details);
+                    var task = [];
+                    var estimated = [];
+                    var actual = [];
+
+                    $.each(data.Details, function (i, details) {
+                        task.push("Task ID : " + details.task_ID);
+                        estimated.push(details.totalEstimatedHours.toFixed(2));
+                        actual.push(details.TotUtilizedHours.toFixed(2));
+                    });
+
+                    var chartdata = {
+                        labels: task,
+                        datasets: [
+                            {
+                                label: 'Task Wise Estimated',
+                                backgroundColor: "rgba(3,169,243)",
+                                //borderColor: "rgba(59, 89, 152, 1)",
+                                //pointHoverBackgroundColor: "rgba(59, 89, 152, 1)",
+                                //pointHoverBorderColor: "rgba(59, 89, 152, 1)",
+                                data: estimated
+                            }, {
+                                label: 'Task Wise Actual',
+                                backgroundColor: "rgba(36,76,102)",
+                                //borderColor: "rgba(59, 89, 152, 1)",
+                                //pointHoverBackgroundColor: "rgba(59, 89, 152, 1)",
+                                //pointHoverBorderColor: "rgba(59, 89, 152, 1)",
+                                data: actual
+                            }
+                        ]
+                    };
+
+                    var ctx = $("#BarPrint");
+                    var barGraph = new Chart(ctx, {
+                        type: 'bar',
+                        data: chartdata,
+                        options: {
+                            responsive: true,
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Task Wise Estimated vs Actual'
+                            }
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function ChartLine() {
+            var date = new Date();
+            var newdate = new Date(date);
+            newdate.setDate(date.getDate() - 7);
+
+            var data = 'Task=&Product=&Client=&FromDate=' + displayDate(newdate) + '&ToDate=' + displayTodayDate();
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'GET',
+                url: '@Url.Action("LoadTEstimatedUtilized", "Reports")',
+                data: data,
+                success: function (data) {
+                    console.log(data.Details);
+
+                    var task = [];
+                    var estimated = [];
+                    var actual = [];
+                    var actualPeriod = [];
+
+                    $.each(data.Details, function (i, details) {
+                        task.push("Task ID : " + details.task_ID);
+                        estimated.push(details.totalEstimatedHours.toFixed(2));
+                        actual.push(details.TotUtilizedHours.toFixed(2));
+                        actualPeriod.push(details.UtilizedHours.toFixed(2));
+                    });
+
+                    var chartdata = {
+                        labels: task,
+                        datasets: [
+                            {
+                                label: "Estimated",
+                                fill: false,
+                                lineTension: 0.1,
+                                backgroundColor: "rgba(59, 89, 152, 0.75)",
+                                borderColor: "rgba(59, 89, 152, 1)",
+                                //pointHoverBackgroundColor: "rgba(59, 89, 152, 1)",
+                                //pointHoverBorderColor: "rgba(59, 89, 152, 1)",
+                                data: estimated
+                            },
+                            {
+                                label: "Utilized",
+                                fill: false,
+                                lineTension: 0.1,
+                                backgroundColor: "rgba(29, 202, 255, 0.75)",
+                                borderColor: "rgba(29, 202, 255, 1)",
+                                //pointHoverBackgroundColor: "rgba(29, 202, 255, 1)",
+                                //pointHoverBorderColor: "rgba(29, 202, 255, 1)",
+                                data: actual
+                            },
+                            {
+                                label: "Utilized for Period",
+                                fill: false,
+                                lineTension: 0.1,
+                                backgroundColor: "rgba(211, 72, 54, 0.75)",
+                                borderColor: "rgba(211, 72, 54, 1)",
+                                //pointHoverBackgroundColor: "rgba(211, 72, 54, 1)",
+                                //pointHoverBorderColor: "rgba(211, 72, 54, 1)",
+                                data: actualPeriod
+                            }
+                        ]
+                    };
+
+                    var ctx = $("#LinePrint");
+
+                    var LineGraph = new Chart(ctx, {
+                        type: 'line',
+                        data: chartdata,
+                        options: {
+                            responsive: true,
+                            title: {
+                                display: true,
+                                text: 'Task Wise Estimated Hours, Utilized Hours and Utilized Hours for Period'
+                            },
+                            tooltips: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            hover: {
+                                mode: 'nearest',
+                                intersect: true
+                            },
+                            scales: {
+                                xAxes: [{
+                                    display: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Tasks'
+                                    }
+                                }],
+                                yAxes: [{
+                                    display: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Value'
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function ChartDoughNut() {
+            var date = new Date();
+            var newdate = new Date(date);
+            newdate.setDate(date.getDate() - 7);
+
+            var data = 'Task=&Product=&Client=&FromDate=' + displayDate(newdate) + '&ToDate=' + displayTodayDate();
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'GET',
+                url: '@Url.Action("LoadTEstimatedUtilized", "Reports")',
+                data: data,
+                success: function (data) {
+                    console.log(data);
+
+                    var task = [];
+                    var actual = [];
+
+                    $.each(data.Details, function (i, details) {
+                        task.push("Task ID : " + details.task_ID);
+                        actual.push(details.TotUtilizedHours.toFixed(2));
+                    });
+
+                    var ctx = $("#DoughtNutPrint");
+
+                    var data = {
+                        labels: task,
+                        datasets: [
+                            {
+                                label: "Utilized Hours",
+                                data: actual,
+                                backgroundColor: [
+                                    "#DEB887",
+                                    "#A9A9A9",
+                                    "#DC143C",
+                                    "#F4A460",
+                                    "#2E8B57"
+                                ],
+                                borderColor: [
+                                    "#CDA776",
+                                    "#989898",
+                                    "#CB252B",
+                                    "#E39371",
+                                    "#1D7A46"
+                                ],
+                                borderWidth: [1, 1, 1, 1, 1]
+                            }
+                        ]
+                    };
+
+                    var options = {
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Task Wise Utilized Hours",
+                            fontSize: 16,
+                            fontColor: "#111"
+                        },
+                        legend: {
+                            display: true,
+                            position: "bottom"
+                        }
+                    };
+
+
+                    var chart = new Chart(ctx, {
+                        type: "doughnut",
+                        data: data,
+                        options: options
+                    });
+
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>3326</td>
+                    <td>10/21/2013</td>
+                    <td>3:29 PM</td>
+                    <td>$321.33</td>
+                </tr>
+                <tr>
+                    <td>3325</td>
+                    <td>10/21/2013</td>
+                    <td>3:20 PM</td>
+                    <td>$234.34</td>
+                </tr>
+                <tr>
+                    <td>3324</td>
+                    <td>10/21/2013</td>
+                    <td>3:03 PM</td>
+                    <td>$724.17</td>
+                </tr>
+                <tr>
+                    <td>3323</td>
+                    <td>10/21/2013</td>
+                    <td>3:00 PM</td>
+                    <td>$23.71</td>
+                </tr>
+                <tr>
+                    <td>3322</td>
+                    <td>10/21/2013</td>
+                    <td>2:49 PM</td>
+                    <td>$8345.23</td>
+                </tr>
+                <tr>
+                    <td>3321</td>
+                    <td>10/21/2013</td>
+                    <td>2:23 PM</td>
+                    <td>$245.12</td>
+                </tr>
+                <tr>
+                    <td>3320</td>
+                    <td>10/21/2013</td>
+                    <td>2:15 PM</td>
+                    <td>$5663.54</td>
+                </tr>
+                <tr>
+                    <td>3319</td>
+                    <td>10/21/2013</td>
+                    <td>2:13 PM</td>
+                    <td>$943.45</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>*@

@@ -1,0 +1,136 @@
+﻿@model IEnumerable<TMS.tbl_securityUserMaster>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.tbl_securityGroup.groupName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.userName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.password)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.password2)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.employeeID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.mobible)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.computerName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.computerIP)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.lastLogedDateTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.isLoged)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.isBlocked)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.isLocked)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.image)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.lastPWChangedDateTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.lastPWChangedUser_ID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.lastPWChangedTerminal_ID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.userLoged_ID)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.tbl_securityGroup.groupName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.userName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.password)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.password2)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.employeeID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.mobible)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.computerName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.computerIP)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.lastLogedDateTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isLoged)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isBlocked)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isLocked)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.image)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.lastPWChangedDateTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.lastPWChangedUser_ID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.lastPWChangedTerminal_ID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.userLoged_ID)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.user_ID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.user_ID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.user_ID })
+        </td>
+    </tr>
+}
+
+</table>

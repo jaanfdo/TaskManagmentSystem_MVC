@@ -1,0 +1,73 @@
+﻿@model TMS.tbl_pmsTxTask
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete Task</h2>
+<hr />
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <dl class="dl-horizontal">
+
+        <dt>
+            @Html.DisplayNameFor(model => model.taskDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.taskDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.taskReference)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.taskReference)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.remarks)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.remarks)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.reported_Date)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.reported_Date)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.reportedUser_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.reportedUser_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.customer_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_genCustomerMaster.customerName)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-danger" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

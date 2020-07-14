@@ -1,0 +1,887 @@
+﻿
+@{
+    ViewBag.Title = "Create Estimation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container" style="margin-left:100px; margin-right:100px;">
+    <div class="container" style="margin-top:10px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <h2>Create Task Estimation</h2>
+        <hr />
+        <form id="FormTaskEstimation" method="post" action="@Url.Action("SaveTaskEstimation", "TaskEstimation")">
+            <div class="form-horizontal container">
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <label for="estimation_ID" class="col-md-4">Estimation ID</label>
+                        <div class="col-md-8">
+                            <input type="text" name="estimation_ID" id="estimation_ID" value="" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="estimationDate" class="col-md-4">Estimation Date</label>
+                        <div class="col-md-8">
+                            <input type="date" name="estimationDate" id="estimationDate" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="task_ID" class="col-md-2">Task ID</label>
+                    <div class="col-md-8">
+                        <input type="text" name="task_ID" id="task_ID" class="form-control task_ID" placeholder="Search Here by Task ID..." />
+                        @*<span class="field-validation-valid text-danger"></span>*@
+
+                        @*@Html.DropDownList("task_ID", null, "Select", htmlAttributes: new { @class = "form-control  col-md-6 task_ID", @id = "task_ID" })*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="task" class="col-md-2">Task Reference</label>
+                    <div class="col-md-10">
+                        <span class="text-muted">
+                            <em name="task" id="task" class="task" style="white-space:pre-wrap;">-</em>
+                        </span>
+
+                        @*<textarea name="task" id="task" class="form-control  task" rows="2"></textarea>*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskRemarks" class="col-md-2">Task Remarks</label>
+                    <div class="col-md-10">
+                        <span class="text-muted">
+                            <em name="taskRemarks" id="taskRemarks" class="taskRemarks" style="white-space:pre-wrap;">-</em>
+                        </span>
+
+                        @*<textarea name="taskRemarks" id="taskRemarks" class="form-control taskRemarks" rows="2"></textarea>*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="panel panel-default" style="margin-bottom:5px;">
+                        <div class="panel-heading">
+                            Task Details
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-sm-6">
+                                <div class="list-group" style="margin-bottom:5px;">
+                                    <a href="#" class="list-group-item">
+                                        Client
+                                        <span class="pull-right text-muted small">
+                                            <em id="Client">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        Product
+                                        <span class="pull-right text-muted small">
+                                            <em id="Product">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        Task Type
+                                        <span class="pull-right text-muted small">
+                                            <em id="TaskType">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        Module
+                                        <span class="pull-right text-muted small">
+                                            <em id="Module">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        Function
+                                        <span class="pull-right text-muted small">
+                                            <em id="Function">-</em>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="list-group" style="margin-bottom:5px;">
+                                    <a href="#" class="list-group-item">
+                                        <i class="fa fa-envelope fa-fw"></i> Priority
+                                        <span class="pull-right text-muted small">
+                                            <em id="Priority">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <i class="fa fa-tasks fa-fw"></i> Task Status
+                                        <span class="pull-right text-muted small">
+                                            <em id="TaskStatus">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <i class="fa fa-comment fa-fw"></i> Reported Date
+                                        <span class="pull-right text-muted small">
+                                            <em id="ReportedDate">-</em>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <i class="fa fa-twitter fa-fw"></i> Reported By
+                                        <span class="pull-right text-muted small">
+                                            <em id="ReportedBy">-</em>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks" class="col-md-2">Remarks</label>
+                    <div class="col-md-10">
+                        <textarea name="remarks" id="remarks" class="form-control"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-inline">
+                        <div class="col-md-2">
+                            <label for="task_ID">Sub Task</label>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                @Html.DropDownList("subTask_ID", null, "Select", htmlAttributes: new { @id = "subTask_ID", @class = "form-control" })
+                                <a href="javascript:;" id="btnAdd" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Sub Task ID</th>
+                                <th>Sub Task</th>
+                                <th>Estimated Hours</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblDetails"></tbody>
+                    </table>
+                    <span class="field-validation-valid text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <p>Total Estimated Hours : <span class="label label-primary" id="totalEstimatedHours"></span></p>
+                </div>
+
+                <div class="form-group">
+                    <hr />
+                    <div class="col-md-12">
+                        <div class="pull-left">
+                            @Html.ActionLink("<< Back to Task List", "Index", "TaskBucket", null, htmlAttributes: new { @class = "btn btn-info" })
+                        </div>
+                        <div class="pull-right">
+                            <input type="button" value="New" id="btnNew" class="btn btn-primary" />
+                            @*@Html.ActionLink("Edit", "Edit", "TaskEstimation", new { estimation_ID = item.task_ID }, htmlAttributes: new { @class = "btn btn-info" })*@
+                            <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        var vList = [];
+
+        $(document).ready(function () {
+            $(document).on("keydown", "input", function (e) {
+                if (e.which == 13) e.preventDefault();
+            });
+
+            clearFields();
+
+            if(@ViewBag.task_ID != ""){
+                var taskID = @ViewBag.task_ID;
+                LoadTasksDetails(taskID);
+            }
+
+            LoadTask();
+            autosize($('textarea'));
+        });
+
+        $('#btnSave').click(function () {
+            if (CheckEmptyFields()) {
+                if (CheckDataGrid_Empty()) {
+                    if (CheckTotalEstimatedHours()) {
+                        if (CheckGridNumbervalue()) {
+                            var detailArr = [];
+                            detailArr.length = 0;
+
+                            var iRow = 1;
+                            $.each($("#tblDetails tr"), function () {
+                                detailArr.push({
+                                    line_No: iRow,
+                                    estimation_ID: $('#estimation_ID').val(),
+                                    subTask_ID: $(this).find('td:eq(1)').html(),
+                                    estimatedHours: $(this).find('.estimatedHours').val()
+                                });
+                                iRow++;
+                            });
+
+                            var data = {
+                                estimation_ID: $('#estimation_ID').val(),
+                                estimationDate: $("#estimationDate").val(),
+                                task_ID: $("#task_ID").val(),
+                                totalEstimatedHours: $('#totalEstimatedHours').text(),
+                                remarks: $("#remarks").val(),
+                                TaskEstimationDetails: detailArr
+                            };
+
+                            console.log(JSON.stringify(data));
+
+                            var url = $('#FormTaskEstimation').attr('action');
+                            console.log(url);
+                            $.ajax({
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                type: 'POST',
+                                url: url,
+                                data: JSON.stringify(data),
+                                success: function (data) {
+                                    console.log('Saved Data : ' + data);
+                                    if (data.status) {
+                                        $('#estimation_ID').val(data.EstimationID);
+                                        $("#btnSave").attr("disabled", "disabled");
+
+                                        alert(data.Message);
+                                        //$('.alert-success').html('Class Schedule ' + type + ' Successfully').fadeIn().delay(4000).fadeOut('slow');
+                                    }
+                                    else if (!data.status && data.Message != "") {
+                                        alert(data.Message);
+                                    }
+                                    else {
+                                        alert(data.Message);
+                                    }
+                                },
+                                error: function () {
+                                    alert("Error!")
+                                }
+                            });
+
+                        }
+                        else {
+                            alert('Allow Numbers Only... \nEstimated Hours');
+                        }
+                    }
+                    else {
+                        alert('Add Estimated Hours to Sub Tasks...');
+                    }
+                }
+            }
+        });
+
+        $('#btnNew').click(function () {
+            clearFields();
+            $("#task_ID").val('');
+            autosize($('textarea'));
+        });
+
+        var iRow = 1;
+        $('#btnAdd').click(function () {
+            if ($.trim($("#subTask_ID").val()) == "") {
+                alert('Required Fields');
+            } else {
+                var subTaskID = $('#subTask_ID').val();
+                var value = highlightDuplicates(subTaskID, 1);
+                console.log(value);
+                if (value == false) {
+                    var newRow = '';
+                    newRow = '<tr>' +
+                            '<td>' + iRow + '</td>' +
+                            '<td>' + subTaskID + '</td>' +
+                            '<td>' + $('#subTask_ID option:selected').text() + '</td>' +
+                            '<td>' + '<input type="text" name="estimatedHours" id="estimatedHours" class="form-control estimatedHours" onchange="Cal()" onkeyup="Cal_KeyUp()"  />' + '</td>' +
+                            '<td>' + '<a href="javascript:;" class="btn btn-danger item-delete""><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+                            '</tr>';
+
+                    //append clone row
+                    $('#tblDetails').append(newRow);
+
+                    //clear select data
+                    $('#subTask_ID').val('1');
+                    //$('#estimatedHours').val('0.00');
+                    iRow++;
+                }
+                else {
+                    alert('Duplicate Items.');
+                }
+            }
+        });
+
+        $('#tblDetails').on('click', '.item-delete', function () {
+            $(this).parents('tr').remove();
+            Cal();
+        });
+
+        function clearFields() {
+            $('#estimationDate').val(displayTodayDate());
+            $("#estimation_ID").val("Auto Generated");
+            //$("#task_ID").val('');
+            $('#totalEstimatedHours').text('');
+            $('#subTask_ID').val('');
+
+            $('#task').val('');
+            $('#task').text('-');
+            $('#taskRemarks').text('-');
+
+            $('#Client').text('-');
+            $('#Product').text('-');
+            $('#TaskType').text('-');
+            $('#Function').text('-');
+            $('#Module').text('-');
+            $('#Priority').text('-');
+            $('#ReportedBy').text('-');
+            $('#ReportedDate').text('-');
+            $('#TaskStatus').text('-');
+            $('#remarks').val('');
+
+            $("#btnSave").removeAttr("disabled");
+
+            $("#tblDetails").empty();
+        }
+
+        function Cal() {
+            var sum = 0;
+            $(".estimatedHours").each(function () {
+                var value = $(this).val();
+                //console.log(value);
+                if (!isNaN(value) && value.length != 0) {
+                    console.log(value);
+                    sum += parseFloat(value);
+                }
+            });
+
+            $('#totalEstimatedHours').text(sum.toString());
+        }
+
+        function Cal_KeyUp() {
+            if ($(".estimatedHours").val().length > 1) {
+                Cal()
+            }
+        }
+
+        function LoadTasksDetails(task_ID) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("TasksDetails", "Task")',
+                async: false,
+                dataType: 'json',
+                data: { task_ID: task_ID },
+                success: function (data) {
+                    if (data.length > 0) {
+                        var newRow = '';
+                        console.log(data);
+                        console.log(data[0].Task_ID + "  " + data[0].TaskReference);
+
+                        var date = data[0].ReportedDate;
+                        var ReportedDate = new Date(parseInt(date.substr(6)));
+
+                        $('#task_ID').val(data[0].Task_ID);
+                        $('#task').text(data[0].TaskReference);
+                        $('#taskRemarks').text(data[0].Remarks);
+
+                        $('#Client').text(data[0].Client);
+                        $('#Product').text(data[0].Product);
+                        $('#TaskType').text(data[0].TaskType);
+                        $('#Function').text(data[0].Function);
+                        $('#Module').text(data[0].Module);
+                        $('#Priority').text(data[0].Priority);
+                        $('#ReportedBy').text(data[0].ReportedBy);
+                        $('#ReportedDate').text(ReportedDate.toDateString('dd-MM-yy'));
+                        $('#TaskStatus').text(data[0].TaskStatus);
+                    }
+                }
+            });
+        }
+
+        function CheckEmptyFields() {
+            var isAllValid = true;
+            if ($('#task_ID').val() == '') {
+                isAllValid = false;
+                alert('Fill Task');
+                //$('#task_ID').siblings('span.field-validation-valid').css('visibility', 'visible');
+                //$('#task_ID').siblings('span.field-validation-valid').text('Task Required');
+            }
+
+            return isAllValid;
+        }
+
+        function CheckDataGrid_Empty() {
+            var isAllValid = true;
+            if ($("#tblDetails tr").length == 0) {
+                isAllValid = false;
+                alert('Fill Detail Table...');
+            }
+
+            return isAllValid;
+        }
+
+        function CheckTotalEstimatedHours() {
+            var bStatus = true;
+            var row = $('#tblDetails').find('tr');
+            for (i = 0; i < row.length; i++) {
+                var value = row.find("td:eq(3)").find('.estimatedHours').val();
+                console.log(value);
+
+                if (value.length == 0) {
+                    bStatus = false;
+                    return bStatus;
+                }
+            }
+
+            return bStatus;
+        }
+
+        function highlightDuplicates(val, rowIndex) {
+            var status = false;
+            $.each($("#tblDetails tr"), function () {
+                var subTask = $(this).find('td:eq(' + rowIndex + ')').html();
+                if (val == subTask) {
+                    console.log('Duplicate ' + true);
+                    status = true;
+                }
+            });
+
+            return status;
+        }
+
+        function LoadTask(){
+            $("#task_ID").autocomplete({
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SearchTasks", "Task")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    })
+                },
+                select: function (event, ui) {
+                    console.log(ui.item.taskReference);
+                    $("#task_ID").val(ui.item.task_ID);
+
+                    LoadTasksDetails(ui.item.task_ID);
+
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                //console.log(item);
+                return $("<li>")
+                    .append("<div>" + item.task_ID + "  " + item.taskReference + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+        function CheckGridNumbervalue() {
+            var status = true;
+
+            $.each($("#tblDetails tr"), function () {
+                var estimatedHours = $(this).find(".estimatedHours").val();
+
+                console.log(estimatedHours);
+
+                if (isNaN(estimatedHours)) {
+                    console.log(false);
+                    status = false;
+                }
+            });
+
+            return status;
+        }
+
+
+
+
+
+        //function split(val) {
+        //    return val.split(/,\s*/);
+        //}
+
+        //function extractLast(term) {
+        //    return split(term).pop();
+        //}
+
+        //function Tasks() {
+        //    $.ajax({
+        //        type: "GET",
+        //        url: '../Task/SearchTasks/',
+        //        async: false,
+        //        dataType: 'json',
+        //        success: function (data) {
+        //            console.log(data);
+        //            if (data.length > 0) {
+        //                vList = data;
+        //                //vList.empty();
+        //                //$.each(data, function (i, val) {
+        //                //    vList.add(val.Task_ID + ' - ' + val.TaskReference + ' - ' + val.Client + ' - ' + val.Product);
+        //                //});
+        //            }
+        //        }
+        //    });
+        //}
+
+        //$("#tags").on("keydown", function (event) {
+        //    if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
+        //        event.preventDefault();
+        //    }
+        //})
+        //.autocomplete({
+        //    minLength: 0,
+        //    source: function (request, response) {
+        //        response($.ui.autocomplete.filter(vList, extractLast(request.term)));
+        //    },
+        //    focus: function () {
+        //        return false;
+        //    },
+        //    select: function (event, ui) {
+        //        var terms = split(this.value);
+        //        terms.pop();
+        //        terms.push(ui.item.value);
+        //        terms.push("");
+        //        this.value = terms.join(", ");
+        //        return false;
+        //    }
+        //});
+
+        //$('.estimatedHours').change(function () {
+        //    alert('ok');
+        //    var val = $('.estimatedHours').val();
+        //    alert(val);
+        //    var sum = 0;
+        //    $(".estimatedHours").each(function () {
+        //        var value = $(this).val();
+        //        console.log(value);
+        //        if (!isNaN(value) && value.length != 0) {
+        //            console.log(value);
+        //            sum += parseFloat(value);
+        //        }
+        //    });
+        //    $('#totalEstimatedHours').text(sum.toString());
+        //});
+
+        //$('.estimatedHours').keyup(function () {
+        //    console.log('ok');
+        //    if ($(".estimatedHours").val().length > 3) {
+        //        var val = $(this).val();
+        //        $('#totalEstimatedHours').text(val.toString());
+        //    }
+        //    else {
+        //        $('#totalEstimatedHours').text('0.00');
+        //    }
+        //    return false;
+        //});
+
+        //function cal() {
+        //var totalsByRow = 0;
+        //var tblrow = $(this).val();
+        //console.log(tblrow);
+        //$('#estimatedHours').each(function () {
+        //    calculateSum();
+        //});
+        //var $dataRows = $("#tblDetails tr('#estimatedHours')");
+        //console.log($dataRows.toString());
+        //var $dataRows = $("#tblDetails tr:not('.totalColumn, .titlerow')");
+        //var $tblrows = $("#tblDetails tbody tr");
+        //$tblrows.each(function () {
+        //    var $tblrow = $(this);
+        //    var price = $tblrow.find("[name=estimatedHours]").val();
+        //    console.log(parseInt($(price)));
+        //    //if (!isNaN(price)) {
+        //        //$tblrow.find('.subtot').val(subTotal.toFixed(2));
+        //        //var grandTotal = 0;
+        //        $(price).each(function () {
+        //            var stval = parseFloat($(this).val());
+        //            grandTotal += isNaN(stval) ? 0 : stval;
+        //        });
+        //        $('#totalEstimatedHours').val(grandTotal);
+        //    //}
+        //});
+        //$('#tblDetails tbody tr').each(function () {
+        //    $(this).find("td:eq(3)").each(function (val) {
+        //        console.log(parseInt($(val)));
+        //        totalsByRow += parseInt($(val).html());
+        //    });
+        //});
+        //$dataRows.each(function (i) {
+        //    $(this).find("#tblDetails tr('#estimatedHours')").each(function (j) {
+        //        console.log(parseDecimal($(this).html()));
+        //        totalsByRow += parseDecimal($(this).html());
+        //    });
+        //});
+        //$('#totalEstimatedHours').text(totalsByRow.toString());
+        //}
+
+        //$("#estimatedHours").keyup(function () {
+        //    if ($("#txtCourse").val().length > 3) {
+        //        $.ajax({
+        //            type: "post",
+        //            url: "<?php echo base_url() ?>Admin_c/viewCourse",
+        //            cache: false,
+        //            data: 'search=' + $("#txtCourse").val(),
+        //            success: function (response) {
+        //                $('#finalResult').html("");
+        //                var obj = JSON.parse(response);
+        //                if (obj.length > 0) {
+        //                    try {
+        //                        $('#finalResult').show();
+        //                        var items = [];
+        //                        $.each(obj, function (i, val) {
+        //                            items.push($('<li/>').text(val.university));
+        //                        });
+        //                        $('#finalResult').append.apply($('#finalResult'), items);
+        //                    }
+        //                    catch (e) {
+        //                        alert('Exception while request..');
+        //                    }
+        //                }
+        //                else {
+        //                    $('#finalResult').show();
+        //                    $('#finalResult').html($('<li/>').text("No Data Found"));
+        //                }
+        //            },
+        //            error: function () {
+        //                alert('Error while request..');
+        //            }
+        //        });
+        //    }
+        //    else if ($("#txtCourse").val().length == 0) {
+        //        $('#finalResult').hide();
+        //    }
+        //    return false;
+        //});
+
+        //$("#txtSubject").keyup(function () {
+        //    if ($("#txtSubject").val().length > 3) {
+        //        $.ajax({
+        //            type: "post",
+        //            url: "<?php echo base_url() ?>Admin_c/viewSubject",
+        //            cache: false,
+        //            data: 'search=' + $("#txtSubject").val(),
+        //            success: function (response) {
+        //                $('#finalResult2').html("");
+        //                var obj = JSON.parse(response);
+        //                if (obj.length > 0) {
+        //                    try {
+        //                        $('#finalResult2').show();
+        //                        var items = [];
+        //                        $.each(obj, function (i, val) {
+        //                            items.push($('<li/>').text(val.university));
+        //                        });
+        //                        $('#finalResult2').append.apply($('#finalResult2'), items);
+        //                    }
+        //                    catch (e) {
+        //                        alert('Exception while request..');
+        //                    }
+        //                }
+        //                else {
+        //                    $('#finalResult2').show();
+        //                    $('#finalResult2').html($('<li/>').text("No Data Found"));
+        //                }
+        //            },
+        //            error: function () {
+        //                alert('Error while request..');
+        //            }
+        //        });
+        //    }
+        //    else if ($("#txtSubject").val().length == 0) {
+        //        $('#finalResult2').hide();
+        //    }
+        //    return false;
+        //});
+
+        //var i = 1;
+        //$("#Add").click(function () {
+        //    console.log('OK');
+        //    $.ajax({
+        //        url: '/tbl_pmsTxTaskEstimation_Detail/Create',
+        //        data: { i: i },
+        //        success: function (data) {
+        //            $("#partial").append(data);
+        //        }
+        //    })
+        //    i++;
+        //})
+
+        //function calculateSum() {
+        //    var sum = 0;
+        //    $('#estimatedHours').each(function () {
+        //        var value = $('#estimatedHours').val();
+        //        if (!isNaN(value) && value.length != 0) {
+        //            console.log(parseFloat(value));
+        //            sum += parseFloat(value);
+        //        }
+        //    });
+        //    $('#totalEstimatedHours').text(sum.toString());
+        //}
+
+        //$("#estimatedHours").keyup(function () {
+        //    var totalsByRow = 0;
+        //    console.log('Ok');
+        //    var $dataRows = $("#tblDetails tr('#estimatedHours')");
+        //    $dataRows.each(function (i) {
+        //        $(this).find("#tblDetails tr('#estimatedHours')").each(function (j) {
+        //            console.log(parseDecimal($(this).html()));
+        //            totalsByRow += parseDecimal($(this).html());
+        //        });
+        //        $('#totalEstimatedHours').text(totalsByRow.toString());
+        //        for (var i = 0; i < totalsByCol.length - 1; i++) {
+        //            totalsByCol[totalsByCol.length - 1] += totalsByCol[i];
+        //        }
+        //        $("#sum_table td.totalCol").each(function (i) {
+        //            $(this).html("total:" + totalsByCol[i]);
+        //        });
+        //        $("#sum_table td.totalRow").each(function (i) {
+        //            $(this).html("total:" + totalsByRow[i]);
+        //        });
+        //    });
+        //});
+
+        //$(function () {
+        //    $('.pnm, .price, .subtot, .grdtot').prop('readonly', true);
+        //    var $tblrows = $("#tblProducts tbody tr");
+        //    $tblrows.each(function (index) {
+        //        var $tblrow = $(this);
+        //        $tblrow.find('.qty').on('change', function () {
+        //            var qty = $tblrow.find("[name=qty]").val();
+        //            var price = $tblrow.find("[name=price]").val();
+        //            var subTotal = parseInt(qty, 10) * parseFloat(price);
+        //            if (!isNaN(subTotal)) {
+        //                $tblrow.find('.subtot').val(subTotal.toFixed(2));
+        //                var grandTotal = 0;
+        //                $(".subtot").each(function () {
+        //                    var stval = parseFloat($(this).val());
+        //                    grandTotal += isNaN(stval) ? 0 : stval;
+        //                });
+        //                $('.grdtot').val(grandTotal.toFixed(2));
+        //            }
+        //        });
+        //    });
+        //});
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@using (Html.BeginForm("SaveTaskEstimation", "tbl_pmsTxTaskEstimation", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                Estimation ID
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.estimation_ID, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.estimation_ID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.estimationDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.estimationDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.estimationDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.task_ID, "task_ID", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("task_ID", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.task_ID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @*<button id="Add" class="btn btn-success" ><i class="glyphicon glyphicon-plus"></i></button>
+                <button id="Remove" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i></button>*@
+
+@*<a href="#" id="Add" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></a>
+    <a href="#" id="Remove" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i></a>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Sub Task</th>
+                <th>Estimated Hours</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="partial">
+            @{Html.RenderAction("Create", "tbl_pmsTxTaskEstimation_Detail");}
+        </tbody>
+    </table>
+            </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.totalEstimatedHours, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.totalEstimatedHours, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.totalEstimatedHours, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Create" class="btn btn-success" />
+        </div>
+    </div>
+        </div>
+    }*@

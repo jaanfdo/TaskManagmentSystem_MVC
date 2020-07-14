@@ -1,0 +1,715 @@
+﻿@{
+    ViewBag.Title = "TaskBucket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #TaskTable td {
+        word-wrap: break-word;
+    }
+</style>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.12/angular-material.min.css">
+
+<div ng-app="TaskBucketApp">
+    <div ng-controller="TaskBucketController" style="margin-top:15px; padding-left:5px; padding-right:5px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-6" style="height:50px;">
+                    <h2>{{message}}</h2>
+                </div>
+                <div class="col-sm-6" style="height:50px; padding-top:20px;">
+                    <p class="pull-right">
+                        <button name="CreateTask" id="CreateTask" class="btn btn-prmary pull-right" ng-click="SaveTask()">Create Tasks</button>
+                    </p>
+                </div>
+            </div>
+            <hr style="margin-left:20px; margin-right:20px;" />
+        </div>
+
+        <div class="row">
+            <div class="md-padding selectdemoOptionGroups" ng-cloak="">
+                <div>
+                    <h1 class="md-title">Multiple Selection</h1>
+                    <div layout="row">
+                        <!--       <md-input-container style="margin-right: 10px;">
+                          <label>Size</label>
+                          <md-select ng-model="size">
+                            <md-option ng-repeat="size in sizes" value="{{size}}">{{size}}</md-option>
+                          </md-select>
+                        </md-input-container> -->
+                        <md-input-container>
+                            <label>Topping</label>
+                            <md-select ng-model="selectedToppings" multiple="">
+                                <md-option ng-value="topping.id" ng-repeat="topping in toppings ">{{topping.name}}</md-option>
+
+                                <!--           <md-optgroup label="Meats">
+                                  <md-option ng-value="topping.name" ng-repeat="topping in toppings | filter: {category: 'meat' }">{{topping.name}}</md-option>
+                                </md-optgroup>
+                                <md-optgroup label="Veggies">
+                                  <md-option ng-value="topping.name" ng-repeat="topping in toppings | filter: {category: 'veg' }">{{topping.name}}</md-option>
+                                </md-optgroup> -->
+                            </md-select>
+                        </md-input-container>
+                    </div>`
+                    <p ng-if="selectedToppings">
+                        You ordered a {{size.toLowerCase()}} pizza with
+                        {{selectedToppings.name}}.
+                    </p>
+                </div>
+            </div>
+
+
+
+            <div class="container table-responsive">
+                @*<table ng-init="List()" id="TaskTable" class="table" style="table-layout:fixed; font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th style="width:4%; text-align:right;">#</th>
+                                <th style="width:2%; text-align:center;"><i class="glyphicon glyphicon-eye-open"></i></th>
+                                <th style="width:5%; text-align:center;">Task ID</th>
+                                <th style="display:none;">Estimation ID</th>
+                                <th style="width:10%; text-align:center;">Task Date</th>
+                                <th style="width:8%;">Module</th>
+                                <th style="width:8%;">Product</th>
+                                <th style="width:15%;">Task Reference</th>
+                                <th style="width:8%;">Task Type</th>
+                                <th style="width:8%;">Priority</th>
+                                <th style="width:8%;">Status</th>
+                                <th style="width:4%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-show="(Tasks).length > 0" ng-repeat="task in Tasks">
+                                <td style="text-align:right;">{{$index + 1 }}</td>
+                                <td style="text-align:center;"><a href="javascript:;" ng-click="ViewTask_Details(task.task_ID)"><i class="glyphicon glyphicon-eye-open"></i></a></td>
+                                <td>{{task.task_ID}}</td>
+                                <td style="display:none;">{{task.estimation_ID}}</td>
+                                <td style="text-align:center;">{{task.taskDate | filerdate | date:'yyyy/MM/dd' }} </td>
+                                <td>{{task.module_ID}} </td>
+                                <td>{{task.product_ID}} </td>
+                                <td>{{task.taskReference}} </td>
+                                <td>{{task.taskType_ID}} </td>
+                                <td>{{task.priority_ID}} </td>
+                                <td>{{task.status}} </td>
+                                <td>
+                                    <button name="btnEdit" id="btnEdit" ng-click="EditTask(task.task_ID)" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>*@
+            </div>
+        </div>
+        <div layout="column" ng-cloak="" class="row autocompletedemoCustomTemplate">
+            <md-content layout-padding="" layout="column">
+                <form ng-submit="$event.preventDefault()">
+                    <h1 class="md-title">Autocomplete</h1>
+
+                    <md-autocomplete id="custom-template" md-search-text="ctrl.searchText" md-items="item in ctrl.querySearch(ctrl.searchText)" md-item-text="item.name" md-min-length="0" placeholder="Pick an Angular repository" md-menu-class="autocomplete-custom-template" md-menu-container-class="custom-container">
+                        <md-item-template>
+                            <span class="item-title">
+                                <md-icon md-svg-icon="img/icons/octicon-repo.svg"></md-icon>
+                                <span> {{item.name}} </span>
+                            </span>
+                            <span class="item-metadata">
+                                <span>
+                                    <strong>{{item.watchers}}</strong> watchers
+                                </span>
+                                <span>
+                                    <strong>{{item.forks}}</strong> forks
+                                </span>
+                            </span>
+                        </md-item-template>
+                    </md-autocomplete>
+                </form>
+            </md-content>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Angular Material Library -->
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.12/angular-material.min.js"></script>
+
+
+@section Scripts {
+    <script>
+        (function () {
+            'use strict';
+            angular
+                .module('MyApp', ['ngMaterial', 'ngMessages', 'material.svgAssetsCache'])
+                .controller('DemoCtrl', DemoCtrl);
+
+            function DemoCtrl($timeout, $q, $log) {
+                var self = this;
+
+                self.simulateQuery = false;
+                // self.isDisabled    = false;
+
+                self.repos = loadAll();
+                self.querySearch = querySearch;
+                // self.selectedItemChange = selectedItemChange;
+                // self.searchTextChange   = searchTextChange;
+
+                // ******************************
+                // Internal methods
+                // ******************************
+
+                /**
+                 * Search for repos... use $timeout to simulate
+                 * remote dataservice call.
+                 */
+                function querySearch(query) {
+                    var results = query ? self.repos.filter(createFilterFor(query)) : self.repos;
+                    // if (self.simulateQuery) {
+                    //   //deferred = $q.defer();
+                    //   //$timeout(function () { deferred.resolve(results); }, Math.random() * 1000, false);
+                    //   return deferred.promise;
+                    // } else {
+                    return results;
+                    // }
+                }
+
+                //     function searchTextChange(text) {
+                //       $log.info('Text changed to ' + text);
+                //     }
+
+                //     function selectedItemChange(item) {
+                //       $log.info('Item changed to ' + JSON.stringify(item));
+                //     }
+
+                /**
+                 * Build `components` list of key/value pairs
+                 */
+                function loadAll() {
+                    var repos = [
+                      {
+                          'name': 'AngularJS',
+                          'url': 'https://github.com/angular/angular.js',
+                          'watchers': '3,623',
+                          'forks': '16,175',
+                      },
+                      {
+                          'name': 'Angular',
+                          'url': 'https://github.com/angular/angular',
+                          'watchers': '469',
+                          'forks': '760',
+                      },
+                      {
+                          'name': 'AngularJS Material',
+                          'url': 'https://github.com/angular/material',
+                          'watchers': '727',
+                          'forks': '1,241',
+                      },
+                      {
+                          'name': 'Angular Material',
+                          'url': 'https://github.com/angular/material2',
+                          'watchers': '727',
+                          'forks': '1,241',
+                      },
+                      {
+                          'name': 'Bower Material',
+                          'url': 'https://github.com/angular/bower-material',
+                          'watchers': '42',
+                          'forks': '84',
+                      },
+                      {
+                          'name': 'Material Start',
+                          'url': 'https://github.com/angular/material-start',
+                          'watchers': '81',
+                          'forks': '303',
+                      }
+                    ];
+                    return repos.map(function (repo) {
+                        repo.value = repo.name.toLowerCase();
+                        return repo;
+                    });
+                }
+
+                /**
+                 * Create filter function for a query string
+                 */
+                function createFilterFor(query) {
+                    var lowercaseQuery = query.toLowerCase();
+
+                    return function filterFn(item) {
+                        return (item.value.indexOf(lowercaseQuery) === 0);
+                    };
+
+                }
+            }
+        })();
+
+
+
+        var TaskBucketApp = angular.module('TaskBucketApp', ['ui.bootstrap', 'ngMaterial', 'ngMessages', 'material.svgAssetsCache']);
+        TaskBucketApp.controller('TaskBucketController', function ($scope, $http, $filter, $uibModal) {
+            $scope.message = "Task List";
+
+
+
+
+            $scope.toppings = [
+                { id: '1', name: 'Pepperoni' },
+                { id: '2', name: 'Sausage' },
+                { id: '3', name: 'Ground Beef' },
+                { id: '4', name: 'Bacon' },
+                { id: '5', name: 'Mushrooms' },
+                { id: '6', name: 'Onion' },
+                { id: '7', name: 'Green Pepper' },
+                { id: '8', name: 'Green Olives' }
+            ];
+            //$scope.selectedToppings = [];
+            //$scope.printSelectedToppings = function printSelectedToppings() {
+            //    var numberOfToppings = this.selectedToppings.length;
+
+            //    if (numberOfToppings > 1) {
+            //        var needsOxfordComma = numberOfToppings > 2;
+            //        var lastToppingConjunction = (needsOxfordComma ? ',' : '') + ' and ';
+            //        var lastTopping = lastToppingConjunction + this.selectedToppings[this.selectedToppings.length - 1];
+
+            //        return this.selectedToppings.slice(0, -1).join(', ') + lastTopping;
+            //    }
+
+            //    return this.selectedToppings.join('');
+            //};
+
+
+        });
+
+
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*//$scope.List = function () {
+    //    $http.get("../TaskBucket/List?ShowAll=" + false)
+    //    .then(function (response) {
+    //        //console.log(response);
+    //        $scope.Tasks = [];
+    //        $scope.AssignedTo = {};
+    //        angular.forEach(response.data.data, function (value, key) {
+    //            $scope.Tasks.push({
+    //                task_ID: value.task_ID,
+    //                estimation_ID: value.estimation_ID,
+    //                taskDate: value.taskDate,
+    //                taskReference: value.taskReference,
+    //                taskType_ID: value.taskType_ID,
+    //                priority_ID: value.priority_ID,
+    //                status_ID: value.status_ID,
+    //                status: value.status,
+    //                AssignedTo: value.AssignedTo,
+    //                client_ID: value.client_ID,
+    //                product_ID: value.product_ID,
+    //                module_ID: value.module_ID,
+    //                function_ID: value.function_ID,
+    //                reported_Date: value.reported_Date,
+    //                reportedUser_ID: value.reportedUser_ID,
+    //                isApproved: value.isApproved,
+    //                isCancelled: value.isCancelled,
+    //            });
+    //        });
+    //    });
+    //}
+    //$scope.List();*@
+
+
+
+
+
+@*$scope.ViewTask_Details = function (task_ID) {
+        var modalInstance = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: '@Url.Action("Details", "Task" )?id=' + task_ID,
+            controller: ModalInstanceCtrl,
+            scope: $scope,
+            //resolve: {
+            //    items: function () {
+            //        return $scope.message;
+            //    }
+            //}
+        });
+
+        modalInstance.result.then(function () {
+            console.log("now I'll close the modal");
+        });
+    };
+
+    $scope.SaveTask = function () {
+        var modalInstance = $uibModal.open({
+            animation: true,
+            templateUrl: '@Url.Action("Modal", "Task" )',
+            controller: ModalInstanceCtrl2,
+        });
+
+        modalInstance.result.then(function () {
+            console.log("Close");
+            //$scope.List();
+        }, function () {
+            console.log('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    $scope.EditTask = function (task_ID) {
+        var modalInstance = $uibModal.open({
+            animation: true,
+            templateUrl: '@Url.Action("Edit2", "Task" )?task_ID=' + task_ID,
+            controller: ModalInstanceCtrl3,
+        });
+
+        modalInstance.result.then(function () {
+            console.log("Close");
+            //$scope.List();
+        }, function () {
+            console.log('Modal dismissed at: ' + new Date());
+        });
+    };*@
+
+
+@*TaskBucketApp.filter("filerdate", function () {
+        var re = /\/Date\(([0-9]*)\)\//;
+        return function (x) {
+            var m = x.match(re);
+            if (m) return new Date(parseInt(m[1]));
+            else return null;
+        };
+    });
+
+
+    var ModalInstanceCtrl = function ($scope, $modalInstance) {
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        };
+    };
+
+    var ModalInstanceCtrl2 = function ($scope, $uibModalInstance) {
+        $scope.close = function () {
+            $uibModalInstance.dismiss();
+        };
+    };
+
+    //TaskBucketApp.controller('ModalInstanceCtrl3', function ($scope, $uibModalInstance, $uibModal) {
+    var ModalInstanceCtrl3 = function ($scope, $uibModalInstance, $uibModal) {
+        $scope.close = function () {
+            $uibModalInstance.dismiss();
+        };
+
+        $scope.renew = function () {
+            $uibModalInstance.dismiss();
+            //$scope.$on('SaveTask', function () { });
+            $scope.$emit('SaveTask');
+
+            console.log($scope.$emit('SaveTask'));
+
+            //console.log($scope);
+            //console.log(TaskBucketApp);
+            //TaskBucketController.scope.SaveTask();
+
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: '@Url.Action("Create2", "Task" )',
+                controller: ModalInstanceCtrl2,
+            });
+
+            modalInstance.result.then(function () {
+                console.log("Close");
+                //$scope.List();
+            }, function () {
+                console.log('Modal dismissed at: ' + new Date());
+            });
+        };
+    };*@
+
+
+
+
+
+
+
+@*@if (Session["Message"] != null)
+    {
+        <text>
+    $(document).ready(function () {
+        alert(Session["Message"]);
+    });
+    </text>
+    }*@
+
+
+@*//Angular js
+    //---------------------------------------------//
+    $scope.GetDetails = function (index) {
+        var task_ID = $scope.Tasks[index].task_ID;
+    var name = $scope.Tasks[index].task_ID;
+    var country = $scope.Tasks[index].taskReference;
+    $window.alert("Task: " + name + "\nRef: " + country);
+    alert(task_ID);
+    $http({
+        method: 'GET',
+        url: '/tbl_pmsTxTaskEstimation/Create',
+        params: { id: task_ID }
+    }).then(function successCallback(response) {
+        alert('ok');
+    }, function errorCallback(response) {
+        alert(response.data['msg']);
+    });
+    var url = '/tbl_pmsTxTaskEstimation/Create/' + task_ID;
+    $('#form').load(url);
+    var url = '/tbl_pmsTxTaskEstimation/Create/' + task_ID;
+    $('#ModalBody').load(url);
+    $('#ModalBody').load(url, function () {
+        console.log(url);
+        $('#ModalTaskEstimation').find('.modal-title').text('Add New Task Estimation');
+        $('#ModalTaskEstimation').show();
+        console.log('ok');
+    });
+    $dialogs.create('tbl_pmsTxTaskEstimation/Create/' + task_ID, '', {}, {
+        key: false,
+        back: 'static'
+    });
+    var modalInstance = $modal.open({
+        animation: true,
+        backdrop: false,
+        ariaLabelledBy: 'modal-title',
+        ariaDescribedBy: 'modal-body',
+        templateUrl: 'tbl_pmsTxTaskEstimation/Create/' + task_ID,
+        size: 800
+    });
+    var pc = this;
+    pc.data = "Lorem Name Test";
+    pc.open = function (size) {
+        var modalInstance = $dialogs.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title',
+            ariaDescribedBy: 'modal-body',
+            templateUrl: 'myModalContent.html',
+            controller: 'ModalInstanceCtrl',
+            controllerAs: 'pc',
+            size: size,
+            resolve: {
+                data: function () {
+                    var url = '/tbl_pmsTxTaskEstimation/Create/' + task_ID;
+                    $('#ModalBody').load(url);
+                }
+            }
+        });
+        modalInstance.result.then(function () {
+            alert("now I'll close the modal");
+        });
+    };
+    };
+    $scope.open = function () {
+        $modal.open({
+            templateUrl: 'myModalContent.html', // loads the template
+            backdrop: false, // setting backdrop allows us to close the modal window on clicking outside the modal window
+            windowClass: 'modal'
+        });//end of modal.open
+    }; // end of scope.open function
+
+    $scope.close = function () {
+        $scope.modalInstance.dismiss();//$scope.modalInstance.close() also works I think
+    };
+
+    $scope.doSomething = function () {
+        //any actions to take place
+        alert("Do Something");
+    }
+
+    var today = new Date();
+    $scope.fullDate = $filter('date')(today, 'fullDate');
+    $scope.longDate = $filter('date')(today, 'longDate');
+    $scope.mediumDate = $filter('date')(today, 'mediumDate');
+    $scope.shortDate = $filter('date')(today, 'shortDate');
+    $scope.shortDate = $filter('date')(today, 'shortDate');
+    $scope.anotherDate = $filter('date')(today, 'yyyy-MM-dd');
+
+    console.log($scope.fullDate);
+    console.log($scope.longDate);
+    console.log($scope.mediumDate);
+    console.log($scope.shortDate);
+    console.log($scope.shortDate);
+    console.log($scope.anotherDate);
+
+    function asyncGreet() {
+        var now = new Date();
+        var day = ("0" + now.getDate()).slice(-2);
+        var month = ("0" + (now.getMonth() + 1)).slice(-2);
+        var today = now.getFullYear() + "-" + (month) + "-" + (day);
+        return today;
+    }
+
+    $scope.getTotal = function () {
+        var total = 0;
+        for (var i = 0; i < $scope.cart.products.length; i++) {
+            var product = $scope.cart.products[i];
+            total += (product.price * product.quantity);
+        }
+        return total;
+    }
+
+    $scope.register = {};
+    $scope.register.countryId = "1";
+    $scope.register.countries = [{
+        id: "1",
+        name: "India"
+    }, {
+        id: "2",
+        name: "USA"
+    }, {
+        id: "3",
+        name: "UK"
+    }, {
+        id: "4",
+        name: "Nepal"
+    }];
+
+
+    var config = function ($routeProvider) {
+        $routeProvider.when('Article', {
+            templateUrl: function (params) { return '/tbl_pmsTxTaskEstimation/Create?id=' + params.vendIF; }
+        });
+    }
+    config.$inject = ['$routeProvider'];
+
+    TaskBucketApp.config(config);
+
+    .run(['$templateCache', function ($templateCache) {
+        $templateCache.put('/dialogs/whatsyourname.html', '<div class="modal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title"><span class="glyphicon glyphicon-star"></span> User\'s Name</h4></div><div class="modal-body"><ng-form name="nameDialog" novalidate role="form"><div class="form-group input-group-lg" ng-class="{true: \'has-error\'}[nameDialog.username.$dirty && nameDialog.username.$invalid]"><label class="control-label" for="username">Name:</label><input type="text" class="form-control" name="username" id="username" ng-model="user.name" ng-keyup="hitEnter($event)" required><span class="help-block">Enter your full name, first &amp; last.</span></div></ng-form></div><div class="modal-footer"><button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button><button type="button" class="btn btn-primary" ng-click="save()" ng-disabled="(nameDialog.$dirty && nameDialog.$invalid) || nameDialog.$pristine">Save</button></div></div></div></div>');
+    }])
+
+    angular.module('ui.bootstrap.demo').controller('ModalInstanceCtrl', function ($uibModalInstance, data) {
+        var pc = this;
+        pc.data = data;
+
+        pc.ok = function () {
+            //{...}
+            alert("You clicked the ok button.");
+            $uibModalInstance.close();
+        };
+
+        pc.cancel = function () {
+            //{...}
+            alert("You clicked the cancel button.");
+            $uibModalInstance.dismiss('cancel');
+        };
+    });
+
+
+    //Ajax
+    //--------------------------------------------------//
+
+    $(document).ready(function () {
+    alert('ok');
+    $('#Deadline').val(displayTodayDate());
+    });
+
+    var i = 1;
+    $("#Add").click(function () {
+        console.log("ok");
+
+        $.ajax({
+            url: '/Test/StudentDetailsDemo',
+            data: { i: i },
+            success: function (data) {
+                $("#partial").append(data);
+            }
+        })
+        i++;
+    })
+
+    $('.Deadline').change(function () {
+        alert('ok');
+        var date = $(this);
+
+        var date2 = new Date(date);
+        var date1 = new Date();
+
+        console.log(date2);
+        console.log(date1);
+
+        var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+        console.log(timeDiff);
+        var count = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        $('.DeadlineCounter').text(count);
+    });
+
+
+    $(document).ready(function () {
+        var oTable = $('#myDatatable').DataTable({
+            //"processing": true, // for show progress bar
+            //"serverSide": true, // for process server side
+            //"filter": false, // this is for disable filter (search box)
+            //"orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "url": '/TaskBucket/List',
+                "type": "get",
+                "datatype": "json"
+            },
+            "columns": [
+                { "data": "task_ID", "autoWidth": true },
+                { "data": "taskDate", "autoWidth": true },
+                { "data": "taskReference", "autoWidth": true },
+                { "data": "taskType_ID", "autoWidth": true },
+                { "data": "priority_ID", "autoWidth": true },
+                { "data": "status_ID", "autoWidth": true },
+                { "data": "Deadline", "autoWidth": true },
+                { "data": "Deadline_Counter", "autoWidth": true },
+                { "data": "AssignedTo", "autoWidth": true },
+                { "data": "client_ID", "autoWidth": true },
+                { "data": "product_ID", "autoWidth": true },
+                { "data": "module_ID", "autoWidth": true },
+                { "data": "function_ID", "autoWidth": true },
+                { "data": "reported_Date", "autoWidth": true },
+                { "data": "reportedUser_ID", "autoWidth": true }
+            ]
+        });
+    });*@
+
+
+
+
+
+
+@*<div data-pagination="" data-num-pages="numOfPages()"
+       data-current-page="curPage" data-max-size="maxSize"
+       data-boundary-links="true"></div>
+
+    //$scope.curPage = 1, $scope.itemsPerPage = 5, $scope.maxSize = 5;
+    //this.items = response.data.data;
+
+    //$scope.numOfPages = function () {
+    //    return Math.ceil(response.data.data.length / $scope.itemsPerPage);
+    //};
+
+    //$scope.$watch('curPage + numPerPage', function () {
+    //    var begin = (($scope.curPage - 1) * $scope.itemsPerPage),
+    //    end = begin + $scope.itemsPerPage;
+
+    //    $scope.Tasks = response.data.data.slice(begin, end);
+    //});*@
+
+
+@*<div class="col-sm-12">
+        <input type="button" value="Update" id="btnUpdate" class="btn btn-success" ng-click="saveTask(task)" />
+    </div>*@
+
+@*<a href="javascript:;" ng-click="GetDetails($index + (currentPage - 1) * itemsPerPage)" data-backdrop="false" class="btn btn-success"><i class="glyphicon glyphicon-eye-open"></i></a>*@
+
+@*<button class="btn btn-success btnEdit" data-bind="{{r.estimation_ID != "" ? r.estimation_ID : 0 }}"><i class="glyphicon glyphicon-edit"></i></button>*@

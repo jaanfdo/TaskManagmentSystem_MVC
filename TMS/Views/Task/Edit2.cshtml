@@ -1,0 +1,629 @@
+﻿
+@{
+    ViewBag.Title = "Edit Task";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<div class="modal-header">
+    <h3 class="modal-title" id="modal-title" style="padding:0px; margin:0px; display:inline;">Edit Task</h3>
+    <button type="button" class="close" aria-label="Close" ng-click="close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body" id="modal-body" style="background-color:#fff;">
+    <div class="container">
+        <form id="FormTask" method="post" action="@Url.Action("UpdateTask", "Task")">
+            <div class="form-horizontal container">
+
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task_ID" class="control-label col-md-4">Task ID</label>
+                            <div class="col-md-8">
+                                <input type="text" name="task_ID" id="task_ID" value="@ViewBag.task_ID" class="form-control" readonly required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="taskDate" class="control-label col-md-4">Task Date</label>
+                            <div class="col-md-8">
+                                <input type="date" name="taskDate" id="taskDate" class="form-control" readonly required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskReference" class="control-label col-md-2">Task Reference</label>
+                    <div class="col-md-10">
+                        <textarea name="taskReference" id="taskReference" class="form-control taskReference" rows="2" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks" class="control-label col-md-2">Remarks</label>
+                    <div class="col-md-10">
+                        <textarea name="remarks" id="remarks" class="form-control remarks" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <div class="form-group has-feedback" id="SearchValues">
+                            <label for="customer_ID" class="control-label col-md-4">Client</label>
+                            <div class="col-md-8">
+                                <input type="text" name="customer" id="customer" class="form-control customer" placeholder="Search Here By Customer Name..." required />
+                                <input type="hidden" name="customer_ID" id="customer_ID" class="form-control customer_ID" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product_ID" class="control-label col-md-4">Product</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("product_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "product_ID", @required = true })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="module_ID" class="control-label col-md-4">Module</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("module_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "module_ID", @required = true })
+                            </div>
+                        </div>
+
+                        <div class="form-group has-feedback" id="SearchValues2">
+                            <label for="function_ID" class="control-label col-md-4">Function</label>
+                            <div class="col-md-8">
+                                <input type="text" name="function" id="function" class="form-control function" placeholder="Search Here By Function Name..." />
+                                <input type="hidden" name="function_ID" id="function_ID" class="form-control function_ID" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskType_ID" class="control-label col-md-4">Task Type</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("taskType_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "taskType_ID", @required = true })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="priority_ID" class="control-label col-md-4">Priority</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("priority_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "priority_ID" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status_ID" class="control-label col-md-4">Status</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("status_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "status_ID", @required = true })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="reportedDate" class="control-label col-md-4">Reported Date</label>
+                            <div class="col-md-8">
+                                <input type="date" name="reportedDate" id="reportedDate" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reportedUser_ID" class="control-label col-md-4">Reported User</label>
+                            <div class="col-md-8">
+                                <input type="text" name="reportedUser_ID" id="reportedUser_ID" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportedDate" class="control-label col-md-4">Attachment</label>
+                            <div class="col-md-8">
+                                <a href="javascript:;" id="btnAdd" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></a>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-8 col-sm-offset-4">
+                                <table class="table" id="tblFiles"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <hr />
+                    <div class="col-md-12">
+                        <div class="pull-right">
+                            @*@Html.ActionLink("New", "Create", "Task", htmlAttributes: new { @class = "btn btn-primary" })*@
+                            <input type="button" value="New" id="btnNew" class="btn btn-primary" ng-click="renew()" />
+                            <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" />
+                            <input type="button" value="Cancel" id="btnCancel" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(function () {
+            GenerateClients();
+            GenerateFunctions();
+
+            LoadHeaderDetails($('#task_ID').val());
+
+            var isCancel = @ViewBag.isCancel.ToString().ToLower();
+            DisableButton(isCancel);
+
+            autosize($('textarea'));
+        });
+
+        $('#btnUpdate').click(function () {
+            if (CheckEmptyFields()) {
+                var data = {
+                    task_ID: $('#task_ID').val(),
+                    taskDate: $("#taskDate").val(),
+                    taskReference: $("#taskReference").val(),
+                    remarks: $("#remarks").val(),
+
+                    customer_ID: $('#customer_ID').val(),
+                    function_ID: $('#function_ID').val(),
+
+                    product_ID: $('#product_ID').val(),
+                    taskType_ID: $('#taskType_ID').val(),
+                    module_ID: $('#module_ID').val(),
+                    priority_ID: $('#priority_ID').val(),
+                    status_ID: $('#status_ID').val(),
+
+                    reportedDate: $('#reportedDate').val(),
+                    reportedUser_ID: $('#reportedUser_ID').val(),
+                };
+
+                console.log(JSON.stringify(data));
+
+                var url = $('#FormTask').attr('action');
+                console.log(url);
+
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'POST',
+                    url: url,
+                    data: JSON.stringify(data),
+                    success: function (data) {
+                        console.log('Saved Data : ' + data);
+                        if (data.status) {
+                            alert(data.Message);
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function () {
+                        alert("Internal Error! Uploading Files....");
+                    }
+                });
+            }
+        });
+
+        $('#btnCancel').click(function () {
+            var task_ID = $('#task_ID').val();
+            var ans = confirm("Are you sure you want to delete this Record? \n\n Task ID - " + task_ID + "");
+            if (ans) {
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    type: 'POST',
+                    url: '@Url.Action("DeleteTask", "Task")',
+                    data: JSON.stringify({ task_ID: task_ID }),
+                    success: function (data) {
+                        console.log('Canceled Data : ' + data);
+                        if (data.status) {
+                            alert(data.Message);
+                            DisableButton(data.isCancelled);
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error!")
+                    }
+                });
+            }
+        });
+
+        $('#btnAdd').click(function () {
+            var newRow = '';
+            newRow = '<tr>' +
+                    '<td style="display:none;">' + + '</td>' +
+                    '<td>' + '<input type="file" name="fileUpload" id="fileUpload" class="form-control fileUpload"/>' + '</td>' +
+                    '<td style="display:none;">' + + '</td>' +
+                    //'<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-view""><i class="glyphicon glyphicon-eye-open"></i></a>' + '</td>' +
+                    '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-download""><i class="glyphicon glyphicon-save"></i></a>' + '</td>' +
+                    '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-delete""><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+                    '</tr>';
+
+            //append clone row
+            $('#tblFiles').append(newRow);
+        });
+
+        function LoadHeaderDetails(task_ID) {
+            console.log(task_ID);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("TasksDetails", "Task")',
+                async: false,
+                dataType: 'json',
+                data: { task_ID: task_ID },
+                success: function (data) {
+                    if (data.length > 0) {
+                        console.log(data);
+
+                        var estimationDate = new Date(parseInt(data[0].TaskDate.substr(6)));
+                        var reportedDate = new Date(parseInt(data[0].ReportedDate.substr(6)));
+
+                        $('#task_ID').val(data[0].Task_ID);
+                        $("#taskDate").val(displayDate(estimationDate.toDateString()));
+                        $("#taskReference").val(data[0].TaskReference);
+                        $("#remarks").val(data[0].Remarks);
+
+                        $('#customer').val(data[0].Client);
+                        $('#customer_ID').val(data[0].Client_ID);
+                        $('#function').val(data[0].Function);
+                        $('#function_ID').val(data[0].Function_ID);
+
+                        $('#reportedDate').val(displayDate(reportedDate.toDateString()));
+                        $('#reportedUser_ID').val(data[0].ReportedBy);
+
+                        LoadAttachmentDetails(data[0].Task_ID);
+                    }
+                    else {
+                        alert('No Data');
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+
+        function LoadAttachmentDetails(task_ID) {
+            console.log(task_ID);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("AttachmentDetails", "Task")',
+                async: false,
+                dataType: 'json',
+                data: { transaction_ID: task_ID },
+                success: function (data) {
+                    $("#tblFiles").empty();
+                    if (data.length > 0) {
+                        var newRow = '';
+                        var i;
+                        console.log(data);
+
+                        for (i = 0; i < data.length; i++) {
+                            newRow += '<tr>' +
+                                '<td style="display:none;">' + data[i].attachment_Index + '</td>' +
+                                '<td>' + data[i].displayName + '</td>' +
+                                '<td style="display:none;">' + data[i].attachment + '</td>' +
+                                '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-view""><i class="glyphicon glyphicon-eye-open"></i></a>' + '</td>' +
+                                '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-download""><i class="glyphicon glyphicon-save"></i></a>' + '</td>' +
+                                '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-delete""><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+                                '</tr>';
+
+                        }
+                        $('#tblFiles').append(newRow);
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+
+        $('#tblFiles').on('change', '.fileUpload', function (e) {
+            var files = e.target.files;
+            var raw = $(this).closest('tr');
+            var AttachmentIndex = raw.find('td:eq(0)').html();
+
+            console.log(e.target.files);
+            if (files.length > 0) {
+                if (window.FormData !== undefined) {
+
+                    var formData = new FormData();
+                    for (var x = 0; x < files.length; x++) {
+                        formData.append("file" + x, files[x]);
+                        raw.find('td:eq(1)').text(files[x].name);
+                    }
+
+                    var TaskID = $('#task_ID').val();
+                    $.ajax({
+                        dataType: 'json',
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        url: '@Url.Action("UpdateFiles", "Task")?TxID=' + TaskID,
+                        data: formData,
+                        success: function (data) {
+                            if (data.status) {
+                                LoadAttachmentDetails(TaskID);
+                                console.log(data.Message);
+                            }
+                            else {
+                                alert(data.Message);
+                            }
+                        },
+                        error: function () {
+                            alert("Internal Error! Uploading Files....")
+                        }
+                    });
+                } else {
+                    alert("This browser doesn't support HTML5 file uploads!");
+                }
+            }
+        });
+
+        $('#tblFiles').on('click', '.item-delete', function () {
+            var raw = $(this).closest('tr');
+            var AttachmentIndex = raw.find('td:eq(0)').text();
+            var File = raw.find('td:eq(1)').text();
+
+            console.log(AttachmentIndex + "    " + File);
+
+            var ans = confirm("Are you sure you want to delete this File? \n\n File Name - " + File + "");
+            if (ans) {
+                var TaskID = $('#task_ID').val();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteFiles", "Task")',
+                    async: false,
+                    dataType: 'json',
+                    data: { TxID: TaskID, AttachmentIndex: AttachmentIndex },
+                    success: function (data) {
+                        if (data.status) {
+                            LoadAttachmentDetails(TaskID);
+                            console.log(data.Message);
+                        } else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error!")
+                    }
+                });
+            }
+        });
+
+        $('#tblFiles').on('click', '.item-view', function () {
+            var raw = $(this).closest('tr');
+            var FileName = raw.find('td:eq(1)').text();
+            console.log(FileName);
+
+            window.open('../Images/' + FileName);
+
+            @*$.ajax({
+                type:'POST',
+                url: '@Url.Action("ViewFile", "Task")',
+                async: false,
+                dataType: 'json',
+                data: { sPath: FileName },
+                success: function (data) {
+                    if (!data.status) {
+                        alert(data.Message);
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });*@
+        });
+
+        $('#tblFiles').on('click', '.item-download', function () {
+            var raw = $(this).closest('tr');
+            var FileName = raw.find('td:eq(1)').text();
+            console.log(FileName);
+
+            $.ajax({
+                url: '../Images/'+FileName,
+                method: 'GET',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (data) {
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(data);
+                    a.href = url;
+                    a.download = FileName;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        });
+
+
+        function CheckEmptyFields() {
+            var isAllValid = true;
+
+            if (!Validate_EmptyFields($('#task_ID'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#taskReference'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#taskDate'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#customer')) && !Validate_EmptyFields($('#customer_ID'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#product_ID'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#taskType_ID'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#module_ID'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#status_ID'))) {
+                isAllValid = false;
+            }
+            if (!Validate_EmptyFields($('#reportedDate'))) {
+                isAllValid = false;
+            }
+
+            //if ($('#task_ID').val().trim() == '') {
+            //    console.log('T');
+            //    //$('#task_ID').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#taskReference').val().trim() == '') {
+            //    console.log('TR');
+            //    //$('#taskReference').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#taskDate').val() == '') {
+            //    console.log('TD');
+            //    //$('#taskDate').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#customer_ID').val().trim() == '') {
+            //    console.log('C');
+            //    //$('#customer_ID').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#product_ID').val() == '') {
+            //    console.log('P');
+            //    //$('#product_ID').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#taskType_ID').val() == '') {
+            //    console.log('TT');
+            //    //$('#taskType_ID').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#module_ID').val() == '') {
+            //    console.log('M');
+            //    //$('#module_ID').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#status_ID').val() == '') {
+            //    console.log('S');
+            //    //$('#status_ID').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            //if ($('#reportedDate').val() == '') {
+            //    console.log('RD');
+            //    //$('#reportedDate').siblings('span.error').css('visibility', 'visible');
+            //    isAllValid = false;
+            //}
+
+            return isAllValid;
+        }
+
+        function GenerateClients() {
+            $("#customer").autocomplete({
+                appendTo: "#SearchValues",
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SearchClients", "Main")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        },
+                        error: function () {
+                            alert("Error!")
+                        }
+                    })
+                },
+                //focus: function (event, ui) {
+                //    $("#customer_ID").val(ui.item.Customer_ID);
+                //    $("#customer").val(ui.item.CustomerName);
+                //    return false;
+                //},
+                select: function (event, ui) {
+                    $("#customer_ID").val(ui.item.Customer_ID);
+                    $("#customer").val(ui.item.CustomerName);
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div>" + item.Customer_ID + "  " + item.CustomerName + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+        function GenerateFunctions() {
+            $("#function").autocomplete({
+                appendTo: "#SearchValues2",
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SearchFunctions", "Main")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        },
+                        error: function () {
+                            alert("Error!")
+                        }
+                    })
+                },
+                //focus: function (event, ui) {
+                //    $("#function").val(ui.item.FunctionName);
+                //    $("#function_ID").val(ui.item.Function_ID);
+                //    return false;
+                //},
+                select: function (event, ui) {
+                    $("#function").val(ui.item.FunctionName);
+                    $("#function_ID").val(ui.item.Function_ID);
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div>" + item.Function_ID + "  " + item.FunctionName + "  " + item.ModuleName + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+
+        function DisableButton(isCancel) {
+            console.log(isCancel);
+
+            $("#btnCancel").removeAttr("disabled");
+            $("#btnUpdate").removeAttr("disabled");
+
+            if (isCancel == true) {
+                $("#btnCancel").addClass('btn btn-danger');
+                $("#btnCancel").attr("disabled", "disabled");
+                $("#btnUpdate").attr("disabled", "disabled");
+            }
+        }
+
+
+    </script>
+}

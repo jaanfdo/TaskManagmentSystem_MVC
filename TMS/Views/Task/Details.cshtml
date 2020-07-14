@@ -1,0 +1,349 @@
+﻿
+@{
+    ViewBag.Title = "Task Details";
+    Layout = null;
+}
+
+<div class="modal-header">
+    <h3 class="modal-title" id="modal-title" style="padding:0px; margin:0px; display:inline;">Task Details</h3>
+    <button type="button" class="close" aria-label="Close" ng-click="close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body" id="modal-body" style="background-color:#fff;">
+    <div class="row">
+        <div class="container">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task_ID" class="control-label col-md-4">
+                                Task ID
+                            </label>
+                            <span class="col-md-8 text-muted small">
+                                <em id="TaskID">-</em>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task_ID" class="control-label col-md-4">
+                                Task Date
+                            </label>
+                            <span class="col-md-8 text-muted small">
+                                <em id="TaskDate">-</em>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="task_ID" class="control-label col-md-2">
+                        Task Reference
+                    </label>
+                    <span class="col-md-8 text-muted small">
+                        <em id="Task" style="white-space:pre-wrap;">-</em>
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label for="task_ID" class="control-label col-md-2">
+                        Remarks
+                    </label>
+                    <span class="col-md-8 text-muted small" >
+                        <em id="Remarks" style="white-space:pre-wrap;">-</em>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-sm-6">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">
+                            Client
+                        </label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="Client">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">
+                            Product
+                        </label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="Product">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">
+                            Module
+                        </label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="Module">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">
+                            Function
+                        </label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="Function">-</em>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">Task Type</label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="TaskType">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">Priority</label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="Priority">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="task_ID" class="control-label col-md-4">Task Status</label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="TaskStatus">-</em>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-sm-6">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="ReportedDate" class="control-label col-md-4">Reported Date</label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="ReportedDate">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="ReportedBy" class="control-label col-md-4">Reported By</label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="ReportedBy">-</em>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="CreatedBy" class="control-label col-md-4">Created By</label>
+                        <span class="col-md-8 text-muted small">
+                            <em id="CreatedBy">-</em>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <h4>Attachments</h4>
+                        <hr />
+                        <table class="table" id="tblFiles"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-info" type="button" ng-click="close()">Close</button>
+</div>
+
+<script>
+    $(document).ready(function () {
+        LoadTasksDetails(@ViewBag.task_ID);
+    });
+
+    function LoadTasksDetails(task_ID) {
+        //var task_ID = $("#task_ID").val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("TasksDetails", "Task")',
+            async: false,
+            dataType: 'json',
+            data: { task_ID: task_ID },
+            success: function (data) {
+                if (data.length > 0) {
+                    console.log(data);
+                    var newRow = '';
+
+                    var ReportedDate = new Date(parseInt(data[0].ReportedDate.substr(6)));
+                    var TaskDate = new Date(parseInt(data[0].TaskDate.substr(6)));
+
+                    $('#TaskID').text(data[0].Task_ID);
+                    $('#Task').text(data[0].TaskReference);
+                    $('#TaskDate').text(TaskDate.toDateString('dd-MM-yyyy'));
+                    $('#Remarks').text(data[0].Remarks);
+
+                    $('#Client').text(data[0].Client);
+                    $('#Product').text(data[0].Product);
+                    $('#TaskType').text(data[0].TaskType);
+                    $('#Function').text(data[0].Function);
+                    $('#Module').text(data[0].Module);
+                    $('#Priority').text(data[0].Priority);
+                    $('#TaskStatus').text(data[0].TaskStatus);
+                    $('#ReportedBy').text(data[0].ReportedBy);
+                    $('#ReportedDate').text(ReportedDate.toDateString('dd-MM-yyyy'));
+                    $('#CreatedBy').text(data[0].CreatedBy);
+
+                    LoadAttachmentDetails(data[0].Task_ID)
+                }
+            },
+            error: function () {
+                alert("Error!")
+            }
+        });
+    }
+
+    function LoadAttachmentDetails(task_ID) {
+        console.log(task_ID);
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("AttachmentDetails", "Task")',
+            async: false,
+            dataType: 'json',
+            data: { transaction_ID: task_ID },
+            success: function (data) {
+                if (data.length > 0) {
+                    $("#tblFiles").empty();
+                    var newRow = '';
+                    var i;
+                    console.log(data);
+
+                    for (i = 0; i < data.length; i++) {
+                        newRow += '<tr>' +
+                            '<td style="display:none;">' + data[i].attachment_Index + '</td>' +
+                            '<td>' + data[i].displayName + '</td>' +
+                            '<td style="display:none;">' + data[i].attachment + '</td>' +
+                            '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-view""><i class="glyphicon glyphicon-eye-open"></i></a>' + '</td>' +
+                            '<td style="width:30px;">' + '<a href="javascript:;" class="btn btn-default item-download""><i class="glyphicon glyphicon-save"></i></a>' + '</td>' +
+                            '</tr>';
+                    }
+                    $('#tblFiles').append(newRow);
+                }
+            },
+            error: function () {
+                alert("Error!")
+            }
+        });
+    }
+
+    $('#tblFiles').on('click', '.item-view', function () {
+        var raw = $(this).closest('tr');
+        var FileName = raw.find('td:eq(1)').text();
+        console.log(FileName);
+
+        window.open('Images/' + FileName);
+
+        @*$.ajax({
+            type: 'POST',
+            url: '@Url.Action("ViewFile", "Task")',
+            async: false,
+            dataType: 'json',
+            data: { sPath: FileName },
+            success: function (data) {
+                if (!data.status) {
+                    alert(data.Message);
+                }
+            },
+            error: function () {
+
+                alert("Error!")
+            }
+        });*@
+    });
+
+    $('#tblFiles').on('click', '.item-download', function () {
+        var raw = $(this).closest('tr');
+        var FileName = raw.find('td:eq(1)').text();
+        console.log(FileName);
+
+        $.ajax({
+            url: 'Images/' + FileName,
+            method: 'GET',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (data) {
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = FileName;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: function () {
+                alert("Error!")
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+@*<div class="col-sm-6">
+        <div class="list-group">
+            <a href="#" class="list-group-item">
+                Client
+                <span class="">
+                    <em id="Client">@Html.DisplayFor(model => model.tbl_genCustomerMaster.customerName)</em>
+                </span>
+            </a>
+            <a href="#" class="list-group-item">
+                Product
+                <span class="">
+                    <em id="Product">@Html.DisplayFor(model => model.tbl_genMasProduct.productName)</em>
+                </span>
+            </a>
+            <a href="#" class="list-group-item">
+                Module
+                <span class="">
+                    <em id="Module">@Html.DisplayFor(model => model.tbl_genMasModule.moduleName)</em>
+                </span>
+            </a>
+            <a href="#" class="list-group-item">
+                Function
+                <span class="">
+                    <em id="Function">@Html.DisplayFor(model => model.tbl_genMasFunction.functionName)</em>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="list-group">
+            <a href="#" class="list-group-item">
+                Task Type
+                <span class="">
+                    <em id="TaskType">@Html.DisplayFor(model => model.tbl_genMasTaskType.taskType)</em>
+                </span>
+            </a>
+            <a href="#" class="list-group-item">
+                Priority
+                <span class="">
+                    <em id="Priority">@Html.DisplayFor(model => model.tbl_genMasPriority.priority)</em>
+                </span>
+            </a>
+            <a href="#" class="list-group-item">
+                Task Status
+                <span class="">
+                    <em id="TaskStatus">@Html.DisplayFor(model => model.tbl_genMasStatus.status)</em>
+                </span>
+            </a>
+
+        </div>
+    </div>*@

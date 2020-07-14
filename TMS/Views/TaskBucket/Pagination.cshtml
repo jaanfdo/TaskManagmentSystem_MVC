@@ -1,0 +1,99 @@
+﻿
+@{
+    ViewBag.Title = "Pagination";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://code.angularjs.org/1.4.8/angular.js"></script>
+    <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-1.0.3.js"></script>
+    @*<link rel="stylesheet" href="style.css" />*@
+    @*<script src="script.js"></script>*@
+</head>
+<body ng-app="myModule" ng-controller="myController">
+
+    <input type="text" class="form-control" placeholder="Name..." ng-model="filterText.itemName">
+    <input type="text" class="form-control" placeholder="Age..." ng-model="filterText.age">
+    @*<ul>
+
+            <li ng-repeat="item in filterData = (totalItems | filter : filterText) | limitTo:itemsPerPage:itemsPerPage*(currentPage-1)">
+
+                <div>{{item.itemName}}</div>
+            </li>
+        </ul>*@
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in filterData = (totalItems | filter : filterText) | limitTo:itemsPerPage:itemsPerPage*(currentPage-1)">
+                <td>{{$index + (currentPage - 1) * itemsPerPage + 1}}</td>
+                <td>{{item.itemName}}</td>
+                <td>{{item.age}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <select class="form-control" style="width:100px;" ng-options="x for x in records" ng-model="viewby" ng-change="setItemsPerPage(viewby)"></select>
+
+    <uib-pagination class="pagination-sm pagination" total-items="filterData.length" ng-model="currentPage" max-size=maxSize
+                    ng-change="pageChanged()" boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" items-per-page=itemsPerPage>
+
+    </uib-pagination>
+
+
+
+
+    <script>
+        // Code goes here
+        var myModule = angular.module('myModule', ["ui.bootstrap"]);
+
+        myModule.controller('myController', function ($scope) {
+            $scope.records = [5, 10, 15, 20];
+            $scope.currentPage = 1;
+
+            $scope.totalItems = [{ itemName: "Tom", age: 20 }, { itemName: "Tim", age: 30 }, { itemName: "Tum", age: 31 }, { itemName: "Tam", age: 18 },
+                                  { itemName: "Tem", age: 12 }, { itemName: "Tiem", age: 35 }, { itemName: "Tom1", age: 20 }, { itemName: "Tim1", age: 18 },
+                                  { itemName: "Tum1", age: 39 }, { itemName: "Tam1", age: 50 }, { itemName: "Tem1", age: 40 }, { itemName: "Tiem1", age: 24 },
+                                  { itemName: "Pum8", age: 36 }, { itemName: "Pum1", age: 17 }, { itemName: "Pum4", age: 70 }, { itemName: "Pum5", age: 28 },
+                                { itemName: "Pum2", age: 25 }, { itemName: "Pum3", age: 10 }, { itemName: "Tom3", age: 12 }, { itemName: "Tom2", age: 20 },
+                                { itemName: "Pum10", age: 14 }, { itemName: "Pum40", age: 16 }, { itemName: "Pum50", age: 20 },
+                                { itemName: "Pum20", age: 22 }, { itemName: "Pum30", age: 53 }, { itemName: "Tom30", age: 54 }, { itemName: "Tom20", age: 23 }];
+
+
+            //$scope.displayItems = $scope.totalItems.slice(0, 3);
+            $scope.viewby = 10;
+            //$scope.totalItems = $scope.totalItems.length;
+            //$scope.currentPage = 1;
+            $scope.itemsPerPage = $scope.viewby;
+            $scope.maxSize = 5; //Number of pager buttons to show
+
+            $scope.pageChanged = function () {
+                var startPos = ($scope.currentPage - 1) * 3;
+                //$scope.displayItems = $scope.totalItems.slice(startPos, startPos + 3);
+                console.log($scope.currentPage);
+            };
+
+            $scope.setItemsPerPage = function (num) {
+                $scope.itemsPerPage = num;
+                $scope.currentPage = 1; //reset to first page
+            };
+
+
+
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,43 @@
+﻿@model SEACC_TMS_New.tbl_pmsTxTaskEstimation_Detail
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>tbl_pmsTxTaskEstimation_Detail</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_genMasSubTask.subTaskName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_genMasSubTask.subTaskName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_pmsTxTaskEstimation.task_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_pmsTxTaskEstimation.task_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.estimatedHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.estimatedHours)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

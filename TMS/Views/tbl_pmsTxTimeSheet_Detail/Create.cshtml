@@ -1,0 +1,129 @@
+﻿@model SEACC_TMS_New.tbl_pmsTxTimeSheet_Detail
+
+@{
+    int i = ViewBag.i == null ? 0 : ViewBag.i;
+}
+
+
+<tr>
+    <td></td>
+    <td>@Html.DropDownList("task_ID", null, htmlAttributes: new { @Name = "[" + i + "].task_ID", @class = "form-control" })</td>
+    <td>@Html.DisplayFor(model => model.tbl_pmsTxTask.taskReference, new { htmlAttributes = new { @Name = "[" + i + "].tbl_pmsTxTask.taskReference", @class = "form-control" } })</td>
+    <td>@Html.EditorFor(model => model.utilizedHours, new { htmlAttributes = new { @Name = "[" + i + "].utilizedHours", @class = "form-control" } })</td>
+    <td>@Html.DropDownList("status_ID", null, htmlAttributes: new { @Name = "[" + i + "].status_ID", @class = "form-control" })</td>
+    <td>@Html.EditorFor(model => model.remarks, new { htmlAttributes = new { @Name = "[" + i + "].remarks", @class = "form-control" } })</td>
+    <td></td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@{
+        ViewBag.Title = "Create";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }*@
+
+@*<h2>Create</h2>
+
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>tbl_pmsTxTimeSheet_Detail</h4>
+            <hr />*@
+@*@Html.ValidationSummary(true, "", new { @class = "text-danger" })*@
+@*<div class="form-group">
+        @Html.LabelFor(model => model.line_No, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.line_No, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.line_No, "", new { @class = "text-danger" })
+        </div>
+    </div>*@
+
+@*<div class="form-group">
+        @Html.LabelFor(model => model.timeSheet_ID, "timeSheet_ID", htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownList("timeSheet_ID", null, htmlAttributes: new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.timeSheet_ID, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.task_ID, "task_ID", htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownList("task_ID", null, htmlAttributes: new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.task_ID, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.utilizedHours, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.utilizedHours, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.utilizedHours, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.remarks, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.remarks, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.remarks, "", new { @class = "text-danger" })
+        </div>
+    </div>*@
+
+
+@*<div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Create" class="btn btn-default" />
+        </div>
+    </div>*@
+@*</div>*@
+@*}
+
+    <div>
+        @Html.ActionLink("Back to List", "Index")
+    </div>*@
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

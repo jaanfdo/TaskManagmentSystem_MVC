@@ -1,0 +1,380 @@
+﻿@model TMS.tbl_pmsTxTask
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container" style="margin-left:100px; margin-right:100px;">
+    <div class="container" style="margin-top:10px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <h2>Task Create</h2>
+        <hr />
+
+        @using (Html.BeginForm())
+        {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal container">
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.task_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.task_ID, new { htmlAttributes = new { placeholder = "Auto Generated", @class = "form-control", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.task_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.taskDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.taskDate, new { @id = "taskDate", @class = "form-control taskDate", @type = "date" })
+                            @Html.ValidationMessageFor(model => model.taskDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.taskReference, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.taskReference, new { rows = "2", @class = "form-control" } )
+                    @Html.ValidationMessageFor(model => model.taskReference, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.remarks, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.remarks, new { rows = "2", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.remarks, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.customer_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("customer_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.customer_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.product_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("product_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.product_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.module_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("module_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.module_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.function_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("function_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.function_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.taskType_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("taskType_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.taskType_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.priority_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("priority_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.priority_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.status_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("status_ID", null, "Select", htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.status_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.reported_Date, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.reported_Date, new { @id = "reported_Date", @class = "form-control reported_Date", @type = "date" })
+                            @Html.ValidationMessageFor(model => model.reported_Date, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.reportedUser_ID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.reportedUser_ID, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.reportedUser_ID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <hr />
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        @Html.ActionLink("<< Back to Task List", "Index", "TaskBucket", null, htmlAttributes: new { @class = "btn btn-info" })
+                    </div>
+                    <div class="pull-right">
+                        <input type="reset" value="New" class="btn btn-primary" />
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#taskDate').val(displayTodayDate());
+            $('#reported_Date').val(displayTodayDate());
+        });
+
+        function LoadContacts() {
+            $.ajax({
+                url: '/Student/GetStudentList',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.length > 0) {
+                        var html = '';
+                        var i;
+                        for (i = 0; i < response.length; i++) {
+                            html += '<tr>' +
+                                '<td>' + response[i].StudentName + '</td>' +
+                                '<td>' + response[i].Age + '</td>' +
+                                '<td>' + response[i].DepartmentName + '</td>' +
+                                '<td>' + '<a href="/Student/Create/' + response[i].StudentID + '" class="popup">Edit</a>&nbsp;|&nbsp;<a href="/Student/Delete/' + response[i].StudentID + '" class="popup">Delete</a>' +
+                                '</td>' +
+                            '</tr>';
+                        }
+                        $('#update_panel').html(html);
+                    }
+                    else {
+                        var $noData = $('<div/>').html('No Data Found!');
+                        $('#update_panel').html($noData);
+                    }
+                },
+                error: function () {
+                    alert('Error! Please try again.');
+                }
+            });
+        }
+
+        $('#btnSearch').click(function () {
+            //var filter = $('#cmbSearch').val();
+            var search = $('#txtSearch').val();
+            var url = "/Student/Search?StudentName=" + search;
+            $.ajax({
+                type: 'ajax',
+                method: 'GET',
+                url: url,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.length > 0) {
+                        var html = '';
+                        var i;
+                        for (i = 0; i < data.length; i++) {
+                            html += '<tr>' +
+                                '<td>' + data[i].StudentName + '</td>' +
+                                '<td>' + data[i].Age + '</td>' +
+                                '<td>' + data[i].DepartmentName + '</td>' +
+                                '<td>' + '<a href="/Student/Save/' + data[i].StudentID + '" class="popup">Edit</a>&nbsp;|&nbsp;<a href="/Student/Delete/' + data[i].StudentID + '" class="popup">Delete</a>' +
+                                '</td>' +
+                            '</tr>';
+                        }
+                        $('#update_panel').html(html);
+
+                    } else {
+                        var $noData = $('<div/>').html('No Data Found!');
+                        $('#update_panel').html($noData);
+                    }
+                },
+                error: function () {
+                    alert('Could not get Data from Database');
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            //Add button click event
+            $('#add').click(function () {
+                //validation and add order items
+                var isAllValid = true;
+                if ($('#productCategory').val() == "0") {
+                    isAllValid = false;
+                    $('#productCategory').siblings('span.error').css('visibility', 'visible');
+                }
+                else {
+                    $('#productCategory').siblings('span.error').css('visibility', 'hidden');
+                }
+
+                if ($('#product').val() == "0") {
+                    isAllValid = false;
+                    $('#product').siblings('span.error').css('visibility', 'visible');
+                }
+                else {
+                    $('#product').siblings('span.error').css('visibility', 'hidden');
+                }
+
+                if (!($('#quantity').val().trim() != '' && (parseInt($('#quantity').val()) || 0))) {
+                    isAllValid = false;
+                    $('#quantity').siblings('span.error').css('visibility', 'visible');
+                }
+                else {
+                    $('#quantity').siblings('span.error').css('visibility', 'hidden');
+                }
+
+                if (!($('#rate').val().trim() != '' && !isNaN($('#rate').val().trim()))) {
+                    isAllValid = false;
+                    $('#rate').siblings('span.error').css('visibility', 'visible');
+                }
+                else {
+                    $('#rate').siblings('span.error').css('visibility', 'hidden');
+                }
+
+                if (isAllValid) {
+                    var $newRow = $('#mainrow').clone().removeAttr('id');
+                    $('.pc', $newRow).val($('#productCategory').val());
+                    $('.product', $newRow).val($('#product').val());
+
+                    //Replace add button with remove button
+                    $('#add', $newRow).addClass('remove').val('Remove').removeClass('btn-success').addClass('btn-danger');
+
+                    //remove id attribute from new clone row
+                    $('#productCategory,#product,#quantity,#rate,#add', $newRow).removeAttr('id');
+                    $('span.error', $newRow).remove();
+                    //append clone row
+                    $('#orderdetailsItems').append($newRow);
+
+                    //clear select data
+                    $('#productCategory,#product').val('0');
+                    $('#quantity,#rate').val('');
+                    $('#orderItemError').empty();
+                }
+
+            })
+
+            //remove button click event
+            $('#orderdetailsItems').on('click', '.remove', function () {
+                $(this).parents('tr').remove();
+            });
+
+            $('#submit').click(function () {
+                var isAllValid = true;
+
+                //validate order items
+                $('#orderItemError').text('');
+                var list = [];
+                var errorItemCount = 0;
+                $('#orderdetailsItems tbody tr').each(function (index, ele) {
+                    if (
+                        $('select.product', this).val() == "0" ||
+                        (parseInt($('.quantity', this).val()) || 0) == 0 ||
+                        $('.rate', this).val() == "" ||
+                        isNaN($('.rate', this).val())
+                        ) {
+                        errorItemCount++;
+                        $(this).addClass('error');
+                    } else {
+                        var orderItem = {
+                            ProductID: $('select.product', this).val(),
+                            Quantity: parseInt($('.quantity', this).val()),
+                            Rate: parseFloat($('.rate', this).val())
+                        }
+                        list.push(orderItem);
+                    }
+                })
+
+                if (errorItemCount > 0) {
+                    $('#orderItemError').text(errorItemCount + " invalid entry in order item list.");
+                    isAllValid = false;
+                }
+
+                if (list.length == 0) {
+                    $('#orderItemError').text('At least 1 order item required.');
+                    isAllValid = false;
+                }
+
+                if ($('#orderNo').val().trim() == '') {
+                    $('#orderNo').siblings('span.error').css('visibility', 'visible');
+                    isAllValid = false;
+                }
+                else {
+                    $('#orderNo').siblings('span.error').css('visibility', 'hidden');
+                }
+
+                if ($('#orderDate').val().trim() == '') {
+                    $('#orderDate').siblings('span.error').css('visibility', 'visible');
+                    isAllValid = false;
+                }
+                else {
+                    $('#orderDate').siblings('span.error').css('visibility', 'hidden');
+                }
+
+                if (isAllValid) {
+                    var data = {
+                        OrderNo: $('#orderNo').val().trim(),
+                        OrderDateString: $('#orderDate').val().trim(),
+                        //Description: $('#description').val().trim(),
+                        OrderDetails: list
+                    }
+
+                    $(this).val('Please wait...');
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/home/save',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json',
+                        success: function (data) {
+                            if (data.status) {
+                                alert('Successfully saved');
+                                //here we will clear the form
+                                list = [];
+                                $('#orderNo,#orderDate,#description').val('');
+                                $('#orderdetailsItems').empty();
+                            }
+                            else {
+                                alert('Error');
+                            }
+                            $('#submit').val('Save');
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            $('#submit').val('Save');
+                        }
+                    });
+                }
+
+            });
+
+        });
+    </script>
+}

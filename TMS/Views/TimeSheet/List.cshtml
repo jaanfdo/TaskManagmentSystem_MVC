@@ -1,0 +1,247 @@
+﻿@model IEnumerable<TMS.tbl_pmsTxTimeSheet>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Time Sheet</h2>
+
+<p>
+    <button id="Create" class="btn btn-success" data-toggle="modal" data-target="#ModalTimeSheet" data-backdrop="false">Create New</button>
+</p>
+<div ng-app="TimeSheetApp" class="row">
+    <div ng-controller="TimeSheetController" style="margin-top:10px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <div class="row">
+            <div class="container">
+                <table class="col-sm-12">
+                    <tr>
+                        <td>Task :</td>
+                        <td><input type="text" placeholder="Search Task" class="form-control col-sm-3" style="width:220px;" ng-model="search.taskReference" /></td>
+                        <td>Module :</td>
+                        <td><input type="text" placeholder="Search Module" class="form-control col-sm-3" style="width:220px;" ng-model="search.module_ID" /></td>
+                        <td>Priority :</td>
+                        <td><input type="text" placeholder="Search Priority" class="form-control col-sm-3" style="width:220px;" ng-model="search.priority_ID" /></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                <table id="TaskTable" class="table" style="table-layout:fixed">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">#</th>
+                            <th style="width:10%;">Time Sheet ID</th>
+                            <th style="width:20%;">Time Sheet  Date</th>
+                            <th style="width:10%;">Sub Task ID</th>
+                            <th style="width:20%;">Sub Task</th>
+                            <th style="width:10%;">Total Utilized Hours</th>
+                            <th style="width:20%;">Remarks</th>
+                            <th style="width:5%;"></th>
+                            <th style="width:5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-show="(TimeSheet).length > 0" ng-repeat="item in TimeSheet.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage)) | filter : search" ng-class="{'text-danger' : item.isCancelled}">
+                            <td>{{$index + (currentPage - 1) * itemsPerPage + 1 }}</td> @*{{$index}}*@
+                            <td>{{item.timeSheet_ID}}</td>
+                            <td>{{item.timeSheetDate | filerdate | date:'yyyy/MM/dd' }} </td>
+                            <td>{{item.subTask_ID}} </td>
+                            <td>{{item.subTask}} </td>
+                            <td>{{item.totalUtilizedHours}} </td>
+                            <td>{{item.remarks}} </td>
+                            <td>
+                                @*<a href="@Url.Action("Create", "TaskEstimation" )?task_ID={{task.task_ID}}" class="btn btn-primary pendingEstimation"><i class="glyphicon glyphicon-plus"></i></a>*@
+                                <button id="Edit" class="btn btn-success Edit" data-toggle="modal" data-bind="{{item.timeSheet_ID}}" data-target="#ModalTimeSheet" data-backdrop="false">Edit</button>
+                            </td>
+                            <td>
+                                @*<a href="@Url.Action("Edit", "Task" )?task_ID={{task.task_ID}}" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i></a>*@
+                                <button id="Delete" class="btn btn-success Delete" data-bind="{{item.timeSheet_ID}}">Delete</button>
+                            </td>
+
+
+                        </tr>
+                        <tr ng-show="(TS |filter:search).length==0">
+                            <td colspan="20">
+                                <div class="text-center text-info" ng-show="(TS |filter:search).length==0">--- No Records Found ---</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="12">
+                                <p class="form-inline">
+                                    View <select class="form-control" style="width:50px;" ng-options="x for x in records" ng-model="viewby" ng-change="setItemsPerPage(viewby)"></select> Records. | Page No : {{currentPage}} | Total Records : {{totalItems}}
+                                </p>
+                            </td>
+                            <td colspan="8">
+                                <pagination total-items="totalItems"
+                                            ng-model="currentPage" max-size="maxSize"
+                                            class="pagination-sm pull-right" boundary-links="true"
+                                            rotate="false" num-pages="numPages"
+                                            items-per-page="itemsPerPage"></pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/ng-template" id="myModalContent.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$ctrl.cancel()">×</button>
+        <h3 class="modal-title" id="modal-title">I'm a modal!</h3>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <ul>
+            <li ng-repeat="item in $ctrl.items">
+                <a href="#" ng-click="$event.preventDefault(); $ctrl.selected.item = item">{{ item }}</a>
+            </li>
+        </ul>
+        Selected: <b>{{ $ctrl.selected.item }}</b>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">OK</button>
+        <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+    </div>
+</script>
+
+
+@*<div class="modal fade" id="ModalTimeSheet" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Task</h4>
+                </div>
+                <div class="modal-body" id="ModalBody">
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+@section Scripts {
+    <script>
+        var TimeSheetApp = angular.module('TimeSheetApp', ['ui.bootstrap']);
+        TimeSheetApp.controller('TimeSheetController', function ($scope, $http, $filter) {
+            $scope.successmessage = "";
+
+            $scope.records = [5, 10, 15, 20];
+
+            $http.get("TimeSheet/TimeSheets")
+            .then(function (response) {
+                console.log(response);
+
+                $scope.TimeSheet = [];
+                angular.forEach(response.data.data, function (value, key) {
+                    $scope.TimeSheet.push({
+                        timeSheet_ID: value.timeSheet_ID,
+                        timeSheetDate: value.timeSheetDate,
+                        subTask_ID: value.subTask_ID,
+                        subTask: value.subTask,
+                        totalUtilizedHours: value.totalUtilizedHours,
+                        remarks: value.remarks,
+                        isCancelled: value.isCancelled
+                    });
+                });
+
+                $scope.viewby = 10;
+                $scope.totalItems = $scope.TimeSheet.length;
+                $scope.currentPage = 1;
+                $scope.itemsPerPage = $scope.viewby;
+                $scope.maxSize = 5; //Number of pager buttons to show
+
+                $scope.setPage = function (pageNo) {
+                    $scope.currentPage = pageNo;
+                };
+
+                $scope.pageChanged = function () {
+                    console.log('Page changed to: ' + $scope.currentPage);
+                };
+
+                $scope.setItemsPerPage = function (num) {
+                    $scope.itemsPerPage = num;
+                    $scope.currentPage = 1; //reset to first page
+                }
+            });
+
+
+
+
+
+            //$scope.changeAssignedUser = function (task) {
+            //    //console.log(task);
+
+            //    console.log(task.task_ID);
+            //    console.log(task.AssignedTo);
+
+            //    $http({
+            //        url: '../TaskBucket/UpdateAssignedTo',
+            //        dataType: 'json',
+            //        method: 'POST',
+            //        data: { "sTaskID": task.task_ID, "sAssignedTo": task.AssignedTo }
+            //    }).then(function (data) {
+            //        console.log(data);
+            //        if (data.data.status == true) {
+            //            console.log('Successfully Changed Assigned User ' + task.task_ID);
+            //            $scope.successmessage += 'Updated ' + task.task_ID + ' Successfully';
+            //        }
+            //        else {
+            //            alert('Error');
+            //        }
+            //    });
+            //};
+
+            //$scope.DeadlineSave = function (DeadlineDate, $index, task) {
+            //    //console.log($index);
+            //    var date = new Date(DeadlineDate);
+            //    //var date1 = new Date();
+
+            //    //var timeDiff = Math.abs(date.getTime() - date1.getTime());
+            //    //var Count = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            //    console.log(task.task_ID);
+            //    console.log(task.DeadlineDate);
+
+            //    $http({
+            //        url: '../TaskBucket/UpdateDeadline',
+            //        dataType: 'json',
+            //        method: 'POST',
+            //        data: { "sTaskID": task.task_ID, "dtDeadline": date }
+            //    }).then(function (data) {
+            //        console.log(data);
+            //        if (data.data.status == true) {
+            //            console.log('Successfully Changes Deadline ' + task.task_ID);
+            //            $scope.DeadlineCounter(DeadlineDate, $index);
+            //            $scope.successmessage += 'Updated ' + task.task_ID + ' Successfully \n';
+            //        }
+            //        else {
+            //            alert('Error');
+            //        }
+            //    });
+            //}
+
+            $scope.FilterDate = function (value) {
+                var ReportedDate = new Date(parseInt(value.substr(6)));
+                return ReportedDate;
+            };
+        });
+
+        TimeSheetApp.filter("filerdate", function () {
+            var re = /\/Date\(([0-9]*)\)\//;
+            return function (x) {
+                var m = x.match(re);
+                if (m) return new Date(parseInt(m[1]));
+                else return null;
+            };
+        });
+
+    </script>
+
+}
+

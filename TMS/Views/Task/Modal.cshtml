@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "Modal";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta chrset="UTF 8">
+    <title>Event Registration</title>
+    <script src="https://code.angularjs.org/1.5.9/angular-route.js"></script>
+    <script src="https://code.angularjs.org/1.5.9/angular.min.js"></script>
+
+</head>
+<body ng-app="sampleApp">
+    <div class="modal-header">
+        <h3 class="modal-title" id="modal-title" style="padding:0px; margin:0px; display:inline;">Create Task</h3>
+        <button type="button" class="close" aria-label="Close" ng-click="close()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" id="modal-body" style="background-color:#fff;">
+        <div class="container">
+            <div ng-view></div>
+        </div>
+    </div>
+    @*<div class="container">
+        <ul>
+            <li><a href="#!NewEvent"> Add New Event</a></li>
+            <li><a href="#!DisplayEvent"> Display Event</a></li>
+        </ul>
+    </div>*@
+
+    <script>
+    var app = angular.module('sampleApp',["ngRoute"]);
+    app.config(function($routeProvider){
+        $routeProvider.
+        when("/NewTask", {
+            templateUrl : "@Url.Action("Create2", "Task")",
+            controller: "AddTaskController"
+        }).
+        otherwise ({
+            redirectTo: '/NewTask'
+        });
+    });
+    app.controller("AddTaskController", function($scope) {
+
+        $scope.message = "This is to Add a new Event";
+
+    });
+    //app.controller("ShowDisplayController",function($scope){
+
+    //    $scope.message = "This is display an Event";
+
+    //});
+    </script>
+</body>
+</html>

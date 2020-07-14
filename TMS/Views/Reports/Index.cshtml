@@ -1,0 +1,630 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .list-group-item {
+        padding: 5px 5px;
+        border: 1px solid #dddddd;
+    }
+
+    .list-group {
+        padding-left: 0;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+</style>
+
+<div style="margin-top:10px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-sm-6" style="padding-left:10px;">
+                    <h2>SEACC Reports</h2>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-inline">
+                        <div class="pull-right">
+                            <span onclick="openNav()" class="sidenavbutton">Reports &#9776;</span>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+            </div>
+        </div>
+        <div class="row" style="margin: 3px 3px;">
+            <div class="table-responsive">
+                <table class="table table-hover table-responsive table-bordered" id="tblReports" style="font-size:12px;"></table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="pull-left" style="margin:10px 10px;">
+                <a href="#" id="btnPrint" target="_blank" class="btn btn-success"><i class="glyphicon glyphicon-print"> Print</i></a>
+
+                @*<a href="@Url.Action("rptTSDetailSubTask", "Reports")" class="btn btn-success">Report Viewer</a>
+                    <a href="#" id="btnWord" class="btn btn-primary">Word</a>
+                    <a href="#" id="btnExcel" class="btn btn-primary">Excel</a>*@
+            </div>
+        </div>
+
+
+        <div id="mySidenav" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <div class="container">
+                <input type="hidden" id="ReportID" />
+                <ul style="padding:10px;">
+                    <li class="form-group">
+                        <label for="Reports">Reports </label>
+                        <hr />
+                        <select id="Reports" class="form-control">
+                            <option value="0">-- Select Report --</option>
+                            <option value="1">Time Sheets Detail - Sub Task Wise Report</option>
+                            <option value="2">Task Wise Utilized Hours Detail Report</option>
+                            <option value="3">Task Estimated vs Utilized Report</option>
+                        </select>
+                    </li>
+
+                    <li class="divider">
+                        <label for="Filters">Filters </label>
+                        <hr />
+                    </li>
+
+                    <li class="form-group" id="grpTask">
+                        <label for="task" class="control-label ">Task</label>
+                        <input type="text" name="task" id="task" class="form-control task" placeholder="Search Here by Task..." />
+                        <input type="hidden" name="task_ID" id="task_ID" class="form-control task_ID" />
+                    </li>
+                    <li class="form-group" id="grpSubTask">
+                        <label for="subTask_ID" class="control-label ">Sub Task</label>
+                        @Html.DropDownList("subTask_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "subTask_ID" })
+                    </li>
+                    <li class="form-group" id="grpCustomer">
+                        <label for="customer" class="control-label ">Client</label>
+                        <input type="text" name="customer" id="customer" class="form-control customer" placeholder="Search Here by Customer..." />
+                        <input type="hidden" name="customer_ID" id="customer_ID" class="form-control customer_ID" />
+                    </li>
+                    <li class="form-group" id="grpProduct">
+                        <label for="product_ID" class="control-label ">Product</label>
+                        @Html.DropDownList("product_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "product_ID" })
+                    </li>
+                    <li class="form-group" id="grpStatus">
+                        <label for="status_ID" class="control-label ">Status</label>
+                        @Html.DropDownList("status_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "status_ID" })
+                    </li>
+                    <li class="form-group" id="grpUser">
+                        <label for="user_ID" class="control-label ">User</label>
+                        @Html.DropDownList("user_ID", null, "Select", htmlAttributes: new { @class = "form-control", @id = "user_ID" })
+                    </li>
+                    <li class="form-group" id="grpFromDate">
+                        <label for="fromDate" class="control-label ">From Date</label>
+                        <input type="date" name="fromDate" id="fromDate" class="form-control fromDate" />
+                    </li>
+                    <li class="form-group" id="grpToDate">
+                        <label for="toDate" class="control-label ">To Date</label>
+                        <input type="date" name="toDate" id="toDate" class="form-control toDate" />
+                    </li>
+
+                    <li class="divider">
+                        <hr />
+                    </li>
+                    <li class="form-group">
+                        <div class="pull-right">
+                            <input type="button" value="New" id="btnNew" class="btn btn-primary" />
+                            <button class="btn btn-primary" id="btnProcess">Process</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+        var dataParameters = null;
+        //var dataTable = '';
+        $(document).ready(function () {
+            $(document).on("keydown", "input", function (e) {
+                if (e.which == 13) e.preventDefault();
+            });
+
+            clearFields();
+
+            GenerateClients();
+            GenerateTask();
+
+            //ChartBar();
+            //ChartLine();
+            //ChartDoughNut();
+            document.getElementById("mySidenav").style.width = "350px";
+        });
+
+        function openNav() {
+            document.getElementById("mySidenav").style.width = "350px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+        }
+
+        $('#Reports').on('change', function () {
+            var ReportID = this.value;
+            if (ReportID != "0") {
+                $('#ReportID').val(ReportID);
+                ReportFilters_Change(ReportID);
+            }
+        });
+
+        $('#btnNew').click(function () {
+            clearFields();
+        });
+
+        $('#btnProcess').click(function () {
+
+            var ReportID = $('#ReportID').val();
+            console.log(ReportID);
+
+            var task_ID = $('#task_ID').val();
+            var customer_ID = $('#customer_ID').val();
+            var product_ID = $('#product_ID').val();
+            var status_ID = $('#status_ID').val();
+            var subTask_ID = $('#subTask_ID').val();
+            var user_ID = $('#user_ID').val();
+            var fromDate = $('#fromDate').val();
+            var toDate = $('#toDate').val();
+
+            if (ReportID == 1) {
+                LoadTSDetailSubTask(user_ID, subTask_ID, customer_ID, status_ID, fromDate, toDate);
+            }
+            else if (ReportID == 2) {
+                LoadTUtilizedHours(task_ID, status_ID, fromDate, toDate);
+            }
+            else if (ReportID == 3) {
+                LoadTEstimatedUtilized(task_ID, product_ID, customer_ID, fromDate, toDate);
+            }
+        });
+
+        function clearFields() {
+            $('#Reports').val('0');
+            $('#ReportID').val('');
+
+            $('#task').val('');
+            $('#task_ID').val('');
+            $('#customer').val('');
+            $('#customer_ID').val('');
+
+            $('#product_ID').val('');
+            $('#status_ID').val('');
+            $('#subTask_ID').val('');
+            $('#user_ID').val('');
+
+            $('#fromDate').val(displayTodayDate());
+            $('#toDate').val(displayTodayDate());
+
+            $('#btnPrint').attr('href', '#');
+
+            $('#btnPrint').attr("disabled", true);
+
+            $('#task').attr("disabled", true);
+            $('#task_ID').attr("disabled", true);
+            $('#customer').attr("disabled", true);
+            $('#customer_ID').attr("disabled", true);
+
+            $('#product_ID').attr("disabled", true);
+            $('#status_ID').attr("disabled", true);
+            $('#subTask_ID').attr("disabled", true);
+            $('#user_ID').attr("disabled", true);
+
+            ReportFilters_Change(0);
+
+            $("#tblReports").empty();
+
+            var height = $(window).height();
+            var length = 15;
+            var tbody = '';
+
+            if (height < 560)
+                length = 6;
+
+            iRow = 1;
+            for (var i = 0; i < length; i++) {
+                tbody += '<tr><td>' + iRow + '</td></tr>';
+                iRow++;
+            }
+            var table = '<thead> <tr> <th> Rows </th> </tr> </thead><tbody>' + tbody + '</tbody>';
+
+            $('#tblReports').append(table);
+
+            //if ($.fn.DataTable.isDataTable('#tblReports')) {
+            //    $('#tblReports').DataTable().destroy();
+            //}
+
+            //DataTableInitialize();
+        }
+
+        function ReportFilters_Change(id) {
+            console.log(id);
+
+            $('#grpTask').css('display', '');
+            $('#grpSubTask').css('display', '');
+            $('#grpCustomer').css('display', '');
+            $('#grpProduct').css('display', '');
+            $('#grpStatus').css('display', '');
+            $('#grpUser').css('display', '');
+            $('#grpFromDate').css('display', '');
+            $('#grpToDate').css('display', '');
+
+            if (id != 0) {
+                $('#task').attr("disabled", false);
+                $('#task_ID').attr("disabled", false);
+                $('#customer').attr("disabled", false);
+                $('#customer_ID').attr("disabled", false);
+
+                $('#product_ID').attr("disabled", false);
+                $('#status_ID').attr("disabled", false);
+                $('#subTask_ID').attr("disabled", false);
+                $('#user_ID').attr("disabled", false);
+            }
+
+            if (id == 1) {
+                $('#grpTask').css('display', 'none');
+                $('#grpProduct').css('display', 'none');
+            }
+            else if (id == 2) {
+                $('#grpUser').css('display', 'none');
+                $('#grpProduct').css('display', 'none');
+                $('#grpCustomer').css('display', 'none');
+                $('#grpSubTask').css('display', 'none');
+            }
+            else if (id == 3) {
+                $('#grpUser').css('display', 'none');
+                $('#grpSubTask').css('display', 'none');
+                $('#grpTask').css('display', 'none');
+            }
+        }
+
+
+        function LoadTSDetailSubTask(user_ID, subTask_ID, customer_ID, status_ID, fromDate, toDate) {
+
+            dataParameters = 'User=' + user_ID + '&SubTask=' + subTask_ID + '&Client=' + customer_ID + '&Status=' + status_ID + '&FromDate=' + fromDate + '&ToDate=' + toDate;
+            console.log(dataParameters);
+
+            var url = '@Url.Action("TSDetailSubTask", "Reports")';
+            console.log(url);
+
+            $('#btnPrint').attr('href', url + '?' + dataParameters);
+            console.log($('#btnPrint').attr('href'));
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("LoadTSDetailSubTask", "Reports")?' + dataParameters,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+
+                    if (data.Details.length > 0) {
+                        if ($.fn.DataTable.isDataTable('#tblReports')) {
+                            $('#tblReports').DataTable().destroy();
+                        }
+
+                        $("#tblReports").empty();
+                        console.log(data.Details);
+
+                        var DetailRow = '', Table = '';
+                        $.each(data.Details, function (i, details) {
+                            var timeSheetDate = new Date(parseInt(details.timeSheetDate.substr(6)));
+
+                            DetailRow += '<tr>' +
+                            '<td>' + displayDate(timeSheetDate.toDateString()) + '</td>' +
+                            '<td>' + details.timeSheet_ID + '</td>' +
+                            '<td>' + details.task_ID + '</td>' +
+                            '<td>' + details.taskReference + '</td>' +
+                            '<td>' + details.remarks + '</td>' +
+
+                            '<td>' + details.subTaskName + '</td>' +
+
+                            '<td>' + '<span class="pull-right">' + details.utilizedHours.toFixed(2) + '</span>' + '</td>' +
+                            '<td>' + details.userName + '</td>' +
+                            '<td>' + details.status + '</td>' +
+                            '<td>' + details.customerCode + '</td>' +
+                            '</tr>';
+                        });
+
+                        Table = '<thead style="background-color:darkgrey; color:white;">' +
+                        '<tr>' +
+                        '<th style="width:8%;">Time Sheet Date</th>' +
+                        '<th style="width:7%;">Time Sheet ID</th>' +
+                        '<th style="width:7%;">Task ID</th>' +
+                        '<th style="width:18%;">Task</th>' +
+                        '<th style="width:20%;">Remarks</th>' +
+
+                        '<th style="width:12%;">Sub Task</th>' +
+
+                        '<th style="width:7%; text-align:right;">Utilized Hours</th>' +
+
+                        '<th style="width:7%;">User</th>' +
+                        '<th style="width:7%;">Status</th>' +
+                        '<th style="width:7%;">Client</th>' +
+                        '</tr>' +
+                        '</thead>' +
+                        '<tbody id="tblTimeSheetsDetail">' +
+                            DetailRow +
+                        '</tbody>';
+
+
+                        $('#tblReports').append(Table);
+                        $('#btnPrint').attr("disabled", false);
+                        DataTableInitialize();
+                    }
+                    else {
+                        alert('No Data Found...!');
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+
+        function LoadTUtilizedHours(task_ID, status_ID, fromDate, toDate) {
+
+            dataParameters = 'Task=' + task_ID + '&Status=' + status_ID + '&FromDate=' + fromDate + '&ToDate=' + toDate;
+            console.log(dataParameters);
+
+            var url = '@Url.Action("TUtilizedHours", "Reports")';
+            console.log(url);
+
+            $('#btnPrint').attr('href', url + '?' + dataParameters);
+            console.log($('#btnPrint').attr('href'));
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("LoadTUtilizedHours", "Reports")?' + dataParameters,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+
+                    if (data.Details.length > 0) {
+                        if ($.fn.DataTable.isDataTable('#tblReports')) {
+                            $('#tblReports').DataTable().destroy();
+                        }
+
+                        $("#tblReports").empty();
+                        console.log(data.Details);
+
+                        var DetailRow = '', Table = '';
+                        $.each(data.Details, function (i, details) {
+                            var reported_date = new Date(parseInt(details.reported_date.substr(6)));
+                            var timeSheetDate = new Date(parseInt(details.timeSheetDate.substr(6)));
+
+                            DetailRow += '<tr>' +
+                            '<td>' + displayDate(reported_date.toDateString()) + '</td>' +
+
+                            '<td>' + details.task_ID + '</td>' +
+                            '<td>' + details.customerCode + '</td>' +
+                            '<td>' + details.taskReference + '</td>' +
+
+                            '<td>' + details.status + '</td>' +
+
+                            '<td>' + details.subTaskName + '</td>' +
+
+                            '<td>' + displayDate(timeSheetDate.toDateString()) + '</td>' +
+
+                            '<td>' + details.userName + '</td>' +
+
+                            '<td>' + '<span class="pull-right">' + details.utilizedHours.toFixed(2) + '</span>' + '</td>' +
+
+                            '</tr>';
+                        });
+
+                        Table = '<thead style="background-color:darkgrey; color:white;">' +
+                        '<tr>' +
+                        '<th style="width:8%;">Reported Date</th>' +
+                        '<th style="width:8%;">Task ID</th>' +
+                        '<th style="width:8%;">Client</th>' +
+                        '<th style="width:28%;">Task</th>' +
+                        '<th style="width:8%;">Status</th>' +
+                        '<th style="width:16%;">Sub Task</th>' +
+                        '<th style="width:8%;">Time Sheet Date</th>' +
+                        '<th style="width:8%;">User</th>' +
+                        '<th style="width:8%; text-align:right;">Utilized Hours</th>' +
+                        '</tr>' +
+                        '</thead>' +
+                        '<tbody id="tblTimeSheetsDetail">' +
+                            DetailRow +
+                        '</tbody>';
+
+
+                        $('#tblReports').append(Table);
+                        $('#btnPrint').attr("disabled", false);
+                        DataTableInitialize();
+
+                    } else {
+                        alert('No Data Found...!');
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+
+        function LoadTEstimatedUtilized(task_ID, product_ID, customer_ID, fromDate, toDate) {
+
+            dataParameters = 'Task=' + task_ID + '&Product=' + product_ID + '&Client=' + customer_ID + '&FromDate=' + fromDate + '&ToDate=' + toDate;
+            console.log(dataParameters);
+
+            var url = '@Url.Action("TEstimatedUtilized", "Reports")';
+            console.log(url);
+
+            $('#btnPrint').attr('href', url + '?' + dataParameters);
+            console.log($('#btnPrint').attr('href'));
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("LoadTEstimatedUtilized", "Reports")?' + dataParameters,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+
+                    if (data.Details.length > 0) {
+                        if ($.fn.DataTable.isDataTable('#tblReports')) {
+                            $('#tblReports').DataTable().destroy();
+                        }
+
+                        $("#tblReports").empty();
+                        console.log(data.Details);
+
+                        var DetailRow = '', Table = '';
+                        $.each(data.Details, function (i, details) {
+                            var TaskStartDate = new Date(parseInt(details.TaskStartDate.substr(6)));
+                            var reported_date = new Date(parseInt(details.reported_date.substr(6)));
+
+                            DetailRow += '<tr>' +
+                            '<td>' + displayDate(TaskStartDate.toDateString()) + '</td>' +
+                            '<td>' + displayDate(reported_date.toDateString()) + '</td>' +
+
+                            '<td>' + details.task_ID + '</td>' +
+                            '<td>' + details.taskReference + '</td>' +
+                            '<td>' + details.remarks + '</td>' +
+
+                            '<td>' + details.customerCode + '</td>' +
+                            '<td>' + details.productName + '</td>' +
+
+                            '<td>' + '<span class="pull-right">' + details.totalEstimatedHours.toFixed(2) + '</span>' + '</td>' +
+                            '<td>' + '<span class="pull-right">' + details.UtilizedHours.toFixed(2) + '</span>' + '</td>' +
+                            '<td>' + '<span class="pull-right">' + details.TotUtilizedHours.toFixed(2) + '</span>' + '</td>' +
+                            '<td>' + '<span class="pull-right">' + details.EstUtlHours.toFixed(2) + '</span>' + '</td>' +
+
+                            '<td>' + details.status + '</td>' +
+                            '<td>' + details.assignedUser + '</td>' +
+                            '</tr>';
+                        });
+
+                        Table = '<thead style="background-color:darkgrey; color:white;">' +
+                        '<tr>' +
+                        '<th style="width:7%;">Time Sheet Date</th>' +
+                        '<th style="width:7%;">Reported Date</th>' +
+
+                        '<th style="width:6%;">Task ID</th>' +
+                        '<th style="width:12%;">Task</th>' +
+                        '<th style="width:17%;">Remarks</th>' +
+
+                        '<th style="width:6%;">Client</th>' +
+                        '<th style="width:6%;">Product</th>' +
+
+                        '<th style="width:6%; text-align:right;">Estimated Hours</th>' + //12
+                        '<th style="width:7%; text-align:right;">Utilized Hours for Period</th>' +//16
+                        '<th style="width:7%; text-align:right;">Total Utilized Hours</th>' +
+                        '<th style="width:6%; text-align:right;">Est. Vs Utl.</th>' +
+
+                        '<th style="width:7%;">Status</th>' + //21
+                        '<th style="width:6%;">User</th>' + //24
+                        '</tr>' +
+                        '</thead>' +
+                        '<tbody id="tblTimeSheetsDetail">' +
+                            DetailRow +
+                        '</tbody>';
+
+
+                        $('#tblReports').append(Table);
+                        $('#btnPrint').attr("disabled", false);
+                        DataTableInitialize();
+
+
+                    } else {
+                        alert('No Data Found...!');
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+
+        function DataTableInitialize() {
+            $('#tblReports').DataTable({
+                "destroy": true,
+                "pagingType": "full_numbers",
+                ordering: false,
+                "bPaginate": true,
+                "bLengthChange": false,
+                "bFilter": false,
+                "pageLength": 15,
+            });
+
+            $('#tblReports_paginate ul').removeClass("pagination").addClass('pagination pagination-sm');
+        }
+
+
+        function GenerateTask() {
+            $("#task").autocomplete({
+                appendTo: "#grpTask",
+                autoFocus: true,
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("SearchTasks", "Task")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    })
+                },
+                select: function (event, ui) {
+                    $("#task_ID").val(ui.item.task_ID);
+                    $("#task").val(ui.item.taskReference);
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div>" + item.task_ID + "  " + item.taskReference + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+        function GenerateClients() {
+            $("#customer").autocomplete({
+                appendTo: "#grpCustomer",
+                autoFocus: true,
+                minLength: 0,
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("SearchClients", "Main")',
+                        dataType: 'json',
+                        data: { Search: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    })
+                },
+                select: function (event, ui) {
+                    $("#customer_ID").val(ui.item.Customer_ID);
+                    $("#customer").val(ui.item.CustomerName);
+                    return false;
+                }
+            })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div>" + item.Customer_ID + "  " + item.CustomerName + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+
+
+    </script>
+
+}
+

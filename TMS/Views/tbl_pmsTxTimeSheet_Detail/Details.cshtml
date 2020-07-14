@@ -1,0 +1,51 @@
+﻿@model SEACC_TMS_New.tbl_pmsTxTimeSheet_Detail
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>tbl_pmsTxTimeSheet_Detail</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_pmsTxTask.taskReference)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_pmsTxTask.taskReference)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.tbl_pmsTxTimeSheet.subTask_ID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tbl_pmsTxTimeSheet.subTask_ID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.utilizedHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.utilizedHours)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.remarks)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.remarks)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

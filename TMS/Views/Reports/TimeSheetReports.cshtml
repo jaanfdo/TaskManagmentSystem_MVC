@@ -1,0 +1,602 @@
+﻿
+@{
+    ViewBag.Title = "Time Sheets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="container">
+        <div class="row" style="padding-top:20px; background-color:lightgrey;">
+            <table class="col-sm-12 table-responsive">
+                <tr>
+                    <td class="pull-right"><label class="control-label">From Date :</label></td>
+                    <td><input type="date" id="FromDate" class="form-control col-sm-3" /></td>
+                    <td class="pull-right"><label class="control-label">To Date :</label></td>
+                    <td><input type="date" id="ToDate" class="form-control col-sm-3" /></td>
+                    <td class="pull-right"><label class="control-label">User :</label></td>
+                    <td>
+                        @Html.DropDownList("Users", null, "Select", htmlAttributes: new { @class = "form-control col-sm-3", @id = "Users" })
+                    </td>
+                    <td>
+                        <button id="Search" class="btn btn-primary">Search</button>
+                    </td>
+                    <td class="pull-left">
+                        <input type="checkbox" id="showAll"> Show All
+                    </td>
+                    @*<td>
+                            <button id="Print" class="btn btn-primary">Print</button>
+                        </td>*@
+                </tr>
+            </table>
+        </div>
+        <div class="row">
+            <div class="container" id="Name">
+                <div class="col-sm-12" style="height:50px;">
+                    <h3>Time Sheet Detail Report (Sub Task Wise)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container" style="margin:0px 10px;">
+                <table class="table table-hover table-responsive" id="tblTimeSheets">
+                    <thead>
+                        <tr>
+                            <th style="width:3%; text-align:right;">#</th>
+                            <th style="width:10%;">Tx Date</th>
+                            <th style="width:7%;">Tx ID</th>
+                            <th style="width:20%;">Sub Task</th>
+                            <th style="width:10%;">Task ID</th>
+                            <th style="width:30%;">Task</th>
+
+                            <th style="width:40%;">Remarks</th>
+
+                            <th style="width:10%; text-align:right;">Utilized Hours</th>
+                            <th style="width:10%;">User</th>
+                            <th style="width:10%;">Status</th>
+                            <th style="width:10%;">Client</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblTimeSheetsDetail"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        //var datatable;
+        $(document).ready(function () {
+            $('#FromDate').val(displayTodayDate());
+            $('#ToDate').val(displayTodayDate());
+
+            var FromDate = $('#ToDate').val();
+            var ToDate = $('#FromDate').val();
+
+            console.log($('#showAll').prop('checked'));
+
+            console.log(JSON.stringify(FromDate + '  ' + ToDate));
+            console.log(FromDate + '  ' + ToDate);
+
+            LoadList(false, '', FromDate, ToDate);
+            //LoadList();
+        });
+
+        //function printData() {
+        //    var divToPrint1 = document.getElementById("Name");
+        //    var divToPrint3 = document.getElementById("tblTimeSheets");
+        //    newWin = window.open("");
+        //    newWin.document.write(divToPrint1.outerHTML);
+        //    newWin.document.write(divToPrint3.outerHTML);
+        //    newWin.print();
+        //    newWin.close();
+        //}
+
+        //$('#Print').click(function () {
+        //    printData();
+        //});
+
+        $("#Search").click(function () {
+            console.log($('#showAll'));
+            var UserID = $('#Users').val();
+            var showAll = $('#showAll').prop('checked');
+            var FromDate = $('#FromDate').val();
+            var ToDate = $('#ToDate').val();
+
+            LoadList(showAll, UserID, FromDate, ToDate);
+            //LoadList();
+        });
+
+        function LoadList(showAll, user_ID, FromDate, ToDate) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("TimeSheets", "Reports")?ShowAll=' + showAll + '&User_ID=' + user_ID + '&FromDate=' + FromDate + '&ToDate=' + ToDate,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.Headers.length > 0) {
+
+                        $("#tblTimeSheetsDetail").empty();
+                        var DetailRow = '';
+
+                        console.log(data);
+
+                        var iRow = 1;
+                        $.each(data.Headers, function (i, item) {
+                            //for (var i = 0; i < data.Headers.length; i++) {
+                            //console.log(data[i].timeSheet_ID + "  " + data[i].timeSheetDate);
+
+                            var timeSheetDate = new Date(parseInt(item.timeSheetDate.substr(6)));;
+                            //var timeSheet = JSON.stringify(item.timeSheet_ID);
+
+                            $.ajax({
+                                type: "GET",
+                                url: '@Url.Action("TimeSheetsDetail", "Reports")?timeSheet_ID=' + item.timeSheet_ID,
+                                async: false,
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data.Details.length > 0) {
+                                        console.log(data.Details);
+
+                                        $.each(data.Details, function (i, details) {
+                                            //for (var i = 0; i < data.Details.length; i++) {
+                                            //console.log(data[i].task_ID + "  " + data[i].task + "  " + data[i].utilizedHours + "  " + data[i].status);
+
+                                            DetailRow += '<tr>' +
+                                                    '<td style="text-align:right;">' + iRow + '</td>' +
+                                                    '<td>' + displayDate(timeSheetDate.toDateString()) + '</td>' +
+                                                    '<td>' + item.timeSheet_ID + '</td>' +
+                                                    '<td>' + item.subTask + '</td>' +
+                                                    '<td>' + details.task_ID + '</td>' +
+                                                    '<td>' + details.task + '</td>' +
+                                                    //'<td style="display:none;">' + '<span class="pull-right">' + item.totalUtilizedHours.toFixed(2) + '</span>' + '</td>' +
+                                                    '<td>' + details.remarks + '</td>' +
+                                                    //'<td>' + details.line_No + '</td>' +
+                                                    '<td>' + '<span class="pull-right">' + details.utilizedHours.toFixed(2) + '</span>' + '</td>' +
+                                                    //'<td style="display:none;">' + details.user_ID + '</td>' +
+                                                    '<td>' + item.user + '</td>' +
+                                                    //'<td style="display:none;">' + details.status_ID + '</td>' +
+                                                    '<td>' + details.status + '</td>' +
+                                                    //'<td style="display:none;">' + details.client_ID + '</td>' +
+                                                    '<td>' + details.clientCode + '</td>' +
+
+                                                    //'<td style="display:none;">' + item.isCancelled + '</td>' +
+                                                    //'<td>' + item.remarks + '</td>' +
+                                                    '</tr>';
+
+                                            iRow++;
+                                        });
+                                    }
+                                },
+                                error: function () {
+                                    alert("Error!")
+                                }
+                            });
+                        });
+
+                        $('#tblTimeSheetsDetail').append(DetailRow);
+                        HighlightCancelRecord();
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+
+        @*function LoadList(showAll, user_ID, FromDate, ToDate) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("TimeSheets", "Reports")?ShowAll=' + showAll + "&User_ID=" + user_ID + "&FromDate=" + FromDate + "&ToDate=" + ToDate,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.Headers.length > 0) {
+
+                        $("#tblTimeSheetsDetail").empty();
+                        var DetailRow = '';
+
+                        console.log(data);
+
+                        var iRow = 1;
+                        $.each(data.Headers, function (i, item) {
+                            //for (var i = 0; i < data.Headers.length; i++) {
+                            //console.log(data[i].timeSheet_ID + "  " + data[i].timeSheetDate);
+
+                            var timeSheetDate = new Date(parseInt(item.timeSheetDate.substr(6)));;
+                            //var timeSheet = JSON.stringify(item.timeSheet_ID);
+
+                            DetailRow += '<tr>' +
+                                        '<td style="text-align:right;">' + iRow + '</td>' +
+                                        '<td>' + displayDate(timeSheetDate.toDateString()) + '</td>' +
+                                        '<td>' + item.timeSheet_ID + '</td>' +
+                                        '<td>' + item.subTask + '</td>' +
+                                        '<td>' + item.task_ID + '</td>' +
+                                        '<td>' + item.task + '</td>' +
+                                        //'<td style="display:none;">' + '<span class="pull-right">' + item.totalUtilizedHours.toFixed(2) + '</span>' + '</td>' +
+                                        '<td>' + item.remarks + '</td>' +
+                                        //'<td>' + details.line_No + '</td>' +
+                                        '<td>' + '<span class="pull-right">' + item.utilizedHours.toFixed(2) + '</span>' + '</td>' +
+                                        //'<td style="display:none;">' + details.user_ID + '</td>' +
+                                        '<td>' + item.user + '</td>' +
+                                        //'<td style="display:none;">' + details.status_ID + '</td>' +
+                                        '<td>' + item.status + '</td>' +
+                                        //'<td style="display:none;">' + details.client_ID + '</td>' +
+                                        '<td>' + item.clientCode + '</td>' +
+
+                                        //'<td style="display:none;">' + item.isCancelled + '</td>' +
+                                        //'<td>' + item.remarks + '</td>' +
+                                        '</tr>';
+
+                            iRow++;
+                        });
+
+                        $('#tblTimeSheetsDetail').append(DetailRow);
+                        HighlightCancelRecord();
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }*@
+
+        //$('#showAll').change(function () {
+        //    console.log('ok');
+        //    if (this.checked == true) {
+        //        console.log('checked');
+        //        LoadList(true);
+        //    } else {
+        //        console.log('unchecked');
+        //        LoadList(false);
+        //    }
+        //});
+
+        //function CalRowCount() {
+        //    var iRow = 1;
+        //    var row = $('#tblDetails').find('tr');
+        //    for (i = 0; i < row.length; i++) {
+        //        $('#tblDetails').find('tr:eq(' + i + ')').find("td:eq(0)").html(iRow);
+
+        //        iRow++;
+        //    }
+        //}
+
+        function Load() {
+            @*$.ajax({
+                type: "GET",
+                url: '@Url.Action("TimeSheetsDetail", "Reports")?timeSheet_ID=' + item.timeSheet_ID,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.Details.length > 0) {
+                        console.log(data.Details);
+
+                        $.each(data.Details, function (i, details) {
+                            //for (var i = 0; i < data.Details.length; i++) {
+                            //console.log(data[i].task_ID + "  " + data[i].task + "  " + data[i].utilizedHours + "  " + data[i].status);
+
+                            DetailRow += '<tr>' +
+                                    '<td style="text-align:right;">' + iRow + '</td>' +
+                                    '<td>' + displayDate(timeSheetDate.toDateString()) + '</td>' +
+                                    '<td>' + item.timeSheet_ID + '</td>' +
+                                    '<td>' + item.subTask + '</td>' +
+                                    '<td>' + details.task_ID + '</td>' +
+                                    '<td>' + details.task + '</td>' +
+                                    //'<td style="display:none;">' + '<span class="pull-right">' + item.totalUtilizedHours.toFixed(2) + '</span>' + '</td>' +
+                                    '<td>' + details.remarks + '</td>' +
+                                    //'<td>' + details.line_No + '</td>' +
+                                    '<td>' + '<span class="pull-right">' + details.utilizedHours.toFixed(2) + '</span>' + '</td>' +
+                                    //'<td style="display:none;">' + details.user_ID + '</td>' +
+                                    '<td>' + item.user + '</td>' +
+                                    //'<td style="display:none;">' + details.status_ID + '</td>' +
+                                    '<td>' + details.status + '</td>' +
+                                    //'<td style="display:none;">' + details.client_ID + '</td>' +
+                                    '<td>' + details.clientCode + '</td>' +
+
+                                    //'<td style="display:none;">' + item.isCancelled + '</td>' +
+                                    //'<td>' + item.remarks + '</td>' +
+                                    '</tr>';
+
+                            iRow++;
+                        });
+                    }
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });*@
+        }
+
+        function HighlightCancelRecord() {
+            var row = $('#tblTimeSheet').find('tr');
+            for (i = 0; i < row.length - 1; i++) {
+                var value = $('#tblTimeSheet').find('tr:eq(' + i + ')').find("td:eq(6)").html();
+                if (value != "") {
+                    console.log(value);
+                    if (value == "true") {
+                        $('#tblTimeSheet').find('tr:eq(' + i + ')').addClass('text-danger');//.css('color', 'red');
+                    }
+                }
+            }
+        }
+
+    </script>
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@*$.ajax({
+    type: "GET",
+    url: '@Url.Action("TimeSheets", "TimeSheet")?ShowAll=' + showAll,
+    async: false,
+    dataType: 'json',
+    success: function (data) {
+    if (data.length > 0) {
+    console.log(data);
+
+    //var DataTable = $("#tblTimeSheet").DataTable().fnDestroy();
+
+    var DataTable = $('#tblTimeSheet').DataTable({
+    "destroy": true,
+    language: {
+    searchPlaceholder: "Search Records..."
+    },
+    "pagingType": "full_numbers",
+    "order": [[1, "desc"]],
+    ordering: false,
+    "bPaginate": true,
+    "bLengthChange": true,
+    "bFilter": true,
+    "bInfo": true,
+    "bAutoWidth": true,
+    data: data,
+    columns: [
+    { "targets": 0, "data": null, "autoWidth": true },
+    { "targets": 1, "data": "timeSheet_ID", "autoWidth": true },
+    {
+    "targets": 2,
+    "data": "timeSheetDate", "autoWidth": true,
+    "render": function (jsonDate) {
+    var timeSheetDate = new Date(parseInt(jsonDate.substr(6)));
+    return displayDate(timeSheetDate.toDateString());
+    }
+    },
+    { "targets": 3, "data": "subTask", "autoWidth": true },
+    {
+    "targets": 4,
+    "data": "totalUtilizedHours", "autoWidth": true,
+    "render": function (Hours) {
+    return '<span class="pull-right">' + Hours.toFixed(2); + '</span>'
+    }
+    },
+    { "targets": 5, "data": "remarks", "autoWidth": true, "searchable":false },
+    {
+    "targets": 6, "data": "isCancelled", "autoWidth": 0, "visible": false,
+    //"render": function (row, data, dataIndex) {
+    //    console.log(data[6] + " - " + row);
+    //    if (data[6] == 'true') {
+    //        console.log(data[6] + " - " + row);
+    //        $(row).addClass('text-danger');
+    //    }
+    //}
+
+    //mRender: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+    //console.log(nRow + " - "+ aData + " - "+ iDisplayIndex + " - "+ iDisplayIndexFull );
+    //    //if (aData[10] == "0") {
+    //    //    $(nRow).css('color', 'grey').css('font-style', 'italic');
+    //    //}
+
+    //if (nRow == "true") {
+    //        $(nRow).eq(6).addClass('text-danger');
+    //    } else {
+    //        $(nRow).eq(6).removeClass('text-danger');
+    //    }
+
+    //return nRow;
+    //}
+
+    },
+    {
+    "targets": 7,
+    mRender: function (data, type, row) {
+    return '<button type="button" class="btn btn-primary item-edit" data-bind="' + row.timeSheet_ID + '" data-toggle="modal" data-target="#ModalTimeSheet"><i class="glyphicon glyphicon-edit"></i></button>'
+    }
+    },
+    {
+    "targets": 8,
+    mRender: function (data, type, row) {
+    return '<button type="button" class="btn btn-danger item-delete" data-bind="' + row.timeSheet_ID + '"><i class="glyphicon glyphicon-remove"></i></button>'
+    }
+    }
+    ]
+    });
+
+
+    DataTable.on('order.dt search.dt', function () {
+    DataTable.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+    cell.innerHTML = i + 1;
+    });
+    }).draw();
+
+    //HighlightCancelRecord();
+    }
+    }
+    });*@
+
+
+@*//$.fn.dataTable.ext.classes.sPageButton = 'button primary_button';
+    //datatable = $('#tblTimeSheet').DataTable({
+    //    //"dom":' <"search"fl><"top">rt<"bottom"ip><"clear">',
+    //    //"dom": '<"top"lf>rt<"bottom"ip><"clear">',
+    //    //"dom": '<"top"f>rt<"bottom"ilp><"clear">',
+    //    language: {
+    //        searchPlaceholder: "Search Records..."
+    //    },
+    //    "pagingType": "full_numbers",
+    //    "order": [[1, "desc"]],
+    //    ordering: false,
+    //    "bPaginate": true,
+    //    "bLengthChange": true,
+    //    "bFilter": true,
+    //    "bInfo": true,
+    //    "bAutoWidth": true
+    //    //"sPaginationType": "four_button",
+    //    //"columnDefs": [{
+    //    //    "type": "numeric-comma", targets: 3
+    //    //}]
+    //});*@
+
+@*$('#tblTimeSheet').DataTable({
+        language: {
+            searchPlaceholder: "Search Records..."
+        },
+        "pagingType": "full_numbers",
+        "order": [[1, "desc"]],
+        ordering: false,
+        "bPaginate": true,
+        "bLengthChange": true,
+        "bFilter": true,
+        "bInfo": true,
+        "bAutoWidth": true,
+        "ajax": {
+            "url": '@Url.Action("TimeSheets", "TimeSheet")?ShowAll=' + showAll,
+            "type": "get",
+            "async": false,
+            "datatype": "json"
+        },
+        "columns": [
+            { "data": "timeSheet_ID", "autoWidth": true },
+            { "data": "timeSheetDate", "autoWidth": true },
+            { "data": "subTask", "autoWidth": true },
+            { "data": "totalUtilizedHours", "autoWidth": true },
+            { "data": "remarks", "autoWidth": true },
+            { "data": "isCancelled", "autoWidth": true, "visible": false },
+            {
+                mRender: function (data, type, row) {
+                    return '<a href="javascript:;" class="btn btn-primary item-edit" data-bind="' + row.timeSheet_ID + '" data-toggle="modal"  data-target="#ModalTimeSheet" data-backdrop="false"><i class="glyphicon glyphicon-edit"></i></a> / <a href="javascript:;" class="btn btn-danger item-delete" data-bind="' + row.timeSheet_ID + '"><i class="glyphicon glyphicon-remove"></i></a>'
+                }
+            }
+        ]
+    });
+
+    HighlightCancelRecord();
+
+
+
+    datatable.draw();*@
+
+
+@*//$('#showAll :checkbox').change(function () {
+    //    console.log('ok');
+    //    if (this.checked) {
+    //        console.log('checked');
+    //        LoadList(true);
+    //    } else {
+    //        console.log('unchecked');
+    //        LoadList(false);
+    //    }
+    //});
+
+    //function ShowAll(){
+    //    console.log('ok');
+    //    if ($('#showAll :checkbox').checked()) {
+    //        console.log('checked');
+    //        LoadList(true);
+    //    } else {
+    //        console.log('unchecked');
+    //        LoadList(false);
+    //    }
+    //}
+
+    //$(document).ready(function () {
+    //    var oTable = $('#myDatatable').DataTable({
+    //        //"processing": true, // for show progress bar
+    //        //"serverSide": true, // for process server side
+    //        //"filter": false, // this is for disable filter (search box)
+    //        //"orderMulti": false, // for disable multiple column at once
+    //        "ajax": {
+    //            "url": '../TimeSheet/TimeSheets',
+    //            "type": "get",
+    //            "datatype": "json"
+    //        },
+    //        "columns": [
+    //            { "data": "timeSheet_ID", "autoWidth": true },
+    //            { "data": "timeSheetDate", "autoWidth": true },
+    //            { "data": "subTask", "autoWidth": true },
+    //            { "data": "totalUtilizedHours", "autoWidth": true },
+    //            { "data": "remarks", "autoWidth": true },
+    //            { "data": "status_ID", "autoWidth": true },
+    //            { "data": "Deadline", "autoWidth": true },
+    //            { "data": "Deadline_Counter", "autoWidth": true },
+    //            { "data": "AssignedTo", "autoWidth": true },
+    //            { "data": "client_ID", "autoWidth": true },
+    //            { "data": "product_ID", "autoWidth": true },
+    //            { "data": "module_ID", "autoWidth": true },
+    //            { "data": "function_ID", "autoWidth": true },
+    //            { "data": "reported_Date", "autoWidth": true },
+    //            { "data": "reportedUser_ID", "autoWidth": true }
+    //        ]
+    //    });
+    //});
+
+
+
+    //function myFunction() {
+    //    // Declare variables
+    //    var input, filter, table, tr, td, i, txtValue;
+    //    input = document.getElementById("myInput");
+    //    filter = input.value.toUpperCase();
+    //    table = document.getElementById("myTable");
+    //    tr = table.getElementsByTagName("tr");
+
+    //    // Loop through all table rows, and hide those who don't match the search query
+    //    for (i = 0; i < tr.length; i++) {
+    //        td = tr[i].getElementsByTagName("td")[0];
+    //        if (td) {
+    //            txtValue = td.textContent || td.innerText;
+    //            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+    //                tr[i].style.display = "";
+    //            } else {
+    //                tr[i].style.display = "none";
+    //            }
+    //        }
+    //    }
+    //}
+
+    //$("#searchInput").keyup(function () {
+    //    //split the current value of searchInput
+    //    var data = this.value.split(" ");
+    //    //create a jquery object of the rows
+    //    var jo = $("#fbody").find("tr");
+    //    if (this.value == "") {
+    //        jo.show();
+    //        return;
+    //    }
+    //    //hide all the rows
+    //    jo.hide();
+
+    //    //Recusively filter the jquery object to get results.
+    //    jo.filter(function (i, v) {
+    //        var $t = $(this);
+    //        for (var d = 0; d < data.length; ++d) {
+    //            if ($t.is(":contains('" + data[d] + "')")) {
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    })
+    //    //show the rows that match.
+    //    .show();
+    //});*@

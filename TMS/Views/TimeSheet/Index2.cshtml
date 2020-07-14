@@ -1,0 +1,697 @@
+﻿
+@{
+    ViewBag.Title = "Time Sheets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div ng-app="TimeSheetApp" class="row" style="margin-left:100px; margin-right:100px;">
+    <div ng-controller="TimeSheetController" style="margin-top:15px; padding-left:5px; padding-right:5px; box-shadow: 5px 5px 3px grey; background-color:#f2f2f2;">
+        <div class="row">
+            <div class="container">
+                <div class="col-sm-6" style="height:50px;">
+                    <h2>{{FormName}}</h2>
+                </div>
+                <div class="col-sm-6" style="height:50px; padding-top:20px;">
+                    <p class="pull-right">
+                        <span style="margin-bottom:20px; margin-right:20px;">
+                            <input type="checkbox" ng-model="showAll" ng-change="showAlls()" > Show All
+                        </span>
+                        <button id="Create" class="btn btn-primary" ng-click="SaveTimeSheet()" >Create New</button>
+                    </p>
+                </div>
+            </div>
+            <hr style="margin-left:20px; margin-right:20px;" />
+        </div>
+        <div class="row">
+            <div class="container table-responsive">
+                <table class="col-sm-12">
+                    <tr>
+                        <td>Time Sheet ID :</td>
+                        <td><input type="text" placeholder="Search Client" class="form-control col-sm-3" style="width:220px;" ng-model="search.timeSheet_ID" /></td>
+                        <td>Sub Task :</td>
+                        <td><input type="text" placeholder="Search Product" class="form-control col-sm-3" style="width:220px;" ng-model="search.subTask" /></td>
+                        <td>Assigned To :</td>
+                        <td>
+                            <div class="input-group">
+                                <select class="form-control" ng-model="AssignedUser" ng-change="filterAssignedUser()">
+                                    <option ng-repeat="x in Users" value="{{x.user_ID}}">{{x.user}}</option>
+                                </select>
+                                <span class="input-group-addon">
+                                    <a href="javascript:;" style="color:#d9534f;" ng-click="ResetAll()"><i class="glyphicon glyphicon-remove" style="font-size:16px;"></i></a>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container table-responsive">
+                <table ng-init="List()" id="TaskTable" class="table" style="table-layout:fixed; font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">#</th>
+                            <th style="width:8%;">Tx ID</th>
+                            <th style="width:13%; text-align:center;">Tx Date</th>
+                            <th style="width:25%;">Sub Task</th>
+                            <th style="width:10%; text-align:right;">Utilized Hours</th>
+                            <th style="width:40%;">Remarks</th>
+                            <th style="width:5%;"></th>
+                            <th style="width:5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-show="(filterTimeSheets).length > 0" ng-repeat="timesheet in filterTimeSheets = (TimeSheets | filter : search) | limitTo:itemsPerPage:itemsPerPage*(currentPage-1)" ng-class="{'text-danger' : timesheet.isCancelled}">
+                            <td style="text-align:right;">{{$index + (currentPage - 1) * itemsPerPage + 1 }}</td>
+                            <td>{{timesheet.timeSheet_ID}}</td>
+                            <td style="text-align:center;">{{timesheet.timeSheetDate | filterDate | date:'yyyy/MM/dd' }} </td>
+                            <td><span style="white-space:pre-wrap;">{{timesheet.subTask}}</span></td>
+                            <td style="text-align:right;">{{timesheet.totalUtilizedHours  | number:2}}</td>
+                            <td><span style="white-space:pre-wrap;">{{timesheet.remarks}}</span></td>
+                            <td>
+                                <button ng-click="EditTimeSheet(timesheet.timeSheet_ID)" class="btn btn-primary"><i class="glyphicon glyphicon-edit"></i></button> 
+                            </td>
+                            <td>
+                                <button ng-click="DeleteTimeSheet(timesheet.timeSheet_ID)" class="btn btn-primary"><i class="glyphicon glyphicon-remove"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="20">
+                                <div class="text-center text-info" ng-show="(filterTimeSheets|filter:search).length==0">--- No Records Found ---</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <p class="form-inline">
+                                    View <select class="form-control" style="width:50px;" ng-options="x for x in records" ng-model="viewby" ng-change="setItemsPerPage(viewby)"></select> Records. | Page No : {{currentPage}} | Total Records : {{filterTimeSheets.length}}
+                                </p>
+                            </td>
+                            <td colspan="4">
+                                <uib-pagination class="pagination-sm pagination pull-right" total-items="filterTimeSheets.length" ng-model="currentPage" max-size="maxSize"
+                                                ng-change="pageChanged()" boundary-links="true" force-ellipses='true' num-pages="numPages" items-per-page="itemsPerPage">
+                                </uib-pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var TaskBucketApp = angular.module('TimeSheetApp', ['ui.bootstrap']);
+        TaskBucketApp.controller('TimeSheetController', function ($scope, $http, $filter, $uibModal) {
+            $scope.FormName = "Time Sheets";
+            $scope.showAll = false;
+            $scope.records = [5, 10, 15, 20, 25, 30];
+            $scope.viewby = 10;
+            $scope.currentPage = 1;
+            $scope.itemsPerPage = $scope.viewby;
+            $scope.maxSize = 5;
+            //$scope.AssignedUser = "";
+
+            $http.get("@Url.Action("Users", "Main")")
+            .then(function (response) {
+                console.log(response.data);
+
+                $scope.Users = [];
+                angular.forEach(response.data, function (value, key) {
+                    $scope.Users.push(value);
+                    //console.log($scope.Users);
+                });
+            });
+
+            $scope.List = function () {
+                $http.get("@Url.Action("TimeSheets", "TimeSheet")?ShowAll=" + $scope.showAll) // + "&AssignedUser=" + $scope.AssignedUser
+                .then(function (response) {
+                    //console.log(response);
+
+                    $scope.TimeSheets = [];
+                    angular.forEach(response.data, function (value, key) {
+                        console.log(response.data);
+
+                        $scope.TimeSheets.push({
+                            timeSheet_ID: value.timeSheet_ID,
+                            timeSheetDate: value.timeSheetDate,
+                            subTask_ID: value.subTask_ID,
+                            subTask: value.subTask,
+                            totalUtilizedHours: value.totalUtilizedHours,
+                            remarks: value.remarks,
+                            isCancelled: value.isCancelled,
+                            user: value.user,
+                        });
+                    });
+                });
+            }
+
+            $scope.filterAssignedUser = function () {
+                $scope.List();
+            }
+
+            $scope.pageChanged = function () {
+                var startPos = ($scope.currentPage - 1) * 3;
+                console.log($scope.currentPage);
+            };
+
+            $scope.setItemsPerPage = function (num) {
+                $scope.itemsPerPage = num;
+                $scope.currentPage = 1; //reset to first page
+            };
+
+            $scope.ResetAll = function () {
+                $scope.AssignedUser = "";
+                $scope.List();
+            }
+
+            $scope.showAlls = function () {
+                $scope.List();
+            };
+
+            $scope.FilterDate = function (value) {
+                //console.log(value);
+
+                var ReportedDate = new Date(parseInt(value.substr(6)));
+                //console.log(ReportedDate);
+
+                return ReportedDate;
+            };
+                        
+
+            $scope.SaveTimeSheet = function () {
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Create", "TimeSheet")',
+                    controller: ModalInstanceCtrl,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                });
+            };
+
+            $scope.EditTimeSheet = function (timeSheet_ID) {
+                console.log("Task : " + timeSheet_ID);
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Edit", "TimeSheet")?timeSheet_ID=' + timeSheet_ID,
+                    controller: ModalInstanceCtrl1,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                });
+            };
+
+            $scope.DeleteTimeSheet = function (timeSheet_ID) {
+                console.log("Task : " + timeSheet_ID);
+
+                var ans = confirm("Are you sure you want to delete this Record? \n\n TimeSheet - " + timeSheet_ID + "");
+                if (ans) {
+                    $http({
+                        url: '@Url.Action("Delete", "TimeSheet")',
+                        dataType: 'json',
+                        method: 'POST',
+                        data: JSON.stringify({ "timeSheet_ID": timeSheet_ID })
+                    }).then(function (data) {
+                        if (data.data.status == true) {
+                            alert('Successfully Cancelled');
+                        }
+                        else {
+                            alert('Error! \nSaving Assign User');
+                        }
+                    });
+
+                }
+
+                @*var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: '@Url.Action("Delete", "TimeSheet")?task_ID=' + task_ID,
+                    controller: ModalInstanceCtrl2,
+                });
+
+                modalInstance.result.then(function () {
+                    console.log("Close");
+                });*@
+            };
+        });
+
+        TaskBucketApp.filter("filterDate", function () {
+            var re = /\/Date\(([0-9]*)\)\//;
+            return function (x) {
+                var m = x.match(re);
+                if (m) return new Date(parseInt(m[1]));
+                else return null;
+            };
+        });
+
+        var ModalInstanceCtrl = function ($scope, $uibModalInstance) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+        };
+
+
+        var ModalInstanceCtrl1 = function ($scope, $uibModalInstance) {
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //var datatable;
+        $(document).ready(function () {
+            LoadList(false);
+            $('#dataTables_filter input').addClass('form-control');
+        });
+
+        $("#Create").click(function () {
+            var url = 'TimeSheet/Create';
+            $("#ModalBody").load(url, function () {
+                $('#ModalTimeSheet').find('.modal-title').text('Add New Time Sheet');
+                $("#ModalTimeSheet").show();
+            });
+        });
+
+        $('#tblTimeSheet').on('click', '.item-edit', function () {
+            var id = $(this).attr('data-bind');
+            var url = 'TimeSheet/Edit/' + id;
+
+            $("#ModalBody").load(url, function () {
+                $('#ModalTimeSheet').find('.modal-title').text('Edit Time Sheet');
+                $("#ModalTimeSheet").show();
+            });
+        });
+
+        $('#tblTimeSheet').on('click', '.item-delete', function () {
+            var timeSheet_ID = $(this).attr('data-bind');
+
+            var ans = confirm("Are you sure you want to delete this Record? \n\n TimeSheet - " + timeSheet_ID + "");
+            if (ans) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=UTF-8",
+                    dataType: "json",
+                    url: 'TimeSheet/Delete/',
+                    data: JSON.stringify({ timeSheet_ID: timeSheet_ID }),
+                    success: function (data) {
+                        if (data.status) {
+                            alert('Successfully Cancelled');
+                            LoadList();
+                            HighlightCancelRecord();
+                        }
+                        else {
+                            alert('Error');
+                        }
+                    },
+                    error: function (errormessage) {
+                        alert(errormessage.responseText);
+                    }
+                });
+            }
+        });
+
+        function LoadList(showAll) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("TimeSheets", "TimeSheet")?ShowAll=' + showAll,
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.length > 0) {
+                        console.log(data);
+
+                        //var DataTable = $("#tblTimeSheet").DataTable().fnDestroy();
+
+                        var DataTable = $('#tblTimeSheet').DataTable({
+                            "destroy": true,
+                            language: {
+                                searchPlaceholder: "Search Records..."
+                            },
+                            "pagingType": "full_numbers",
+                            "order": [[1, "desc"]],
+                            ordering: false,
+                            "bPaginate": true,
+                            "bLengthChange": true,
+                            "bFilter": true,
+                            "bInfo": true,
+                            "bAutoWidth": true,
+                            data: data,
+                            columns: [
+                                { "targets": 0, "data": null, "autoWidth": true },
+                                { "targets": 1, "data": "timeSheet_ID", "autoWidth": true },
+                                {
+                                    "targets": 2,
+                                    "data": "timeSheetDate", "autoWidth": true,
+                                    "render": function (jsonDate) {
+                                        var timeSheetDate = new Date(parseInt(jsonDate.substr(6)));
+                                        return displayDate(timeSheetDate.toDateString());
+                                    }
+                                },
+                                { "targets": 3, "data": "subTask", "autoWidth": true },
+                                {
+                                    "targets": 4,
+                                    "data": "totalUtilizedHours", "autoWidth": true,
+                                    "render": function (Hours) {
+                                        return '<span class="pull-right">' + Hours.toFixed(2); + '</span>'
+                                    }
+                                },
+                                { "targets": 5, "data": "remarks", "autoWidth": true, "searchable": false },
+                                {
+                                    "targets": 6, "data": "isCancelled", "autoWidth": 0, "visible": false,
+                                    //"render": function (row, data, dataIndex) {
+                                    //    console.log(data[6] + " - " + row);
+                                    //    if (data[6] == 'true') {
+                                    //        console.log(data[6] + " - " + row);
+                                    //        $(row).addClass('text-danger');
+                                    //    }
+                                    //}
+
+                                    //mRender: function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+                                    //console.log(nRow + " - "+ aData + " - "+ iDisplayIndex + " - "+ iDisplayIndexFull );
+                                    //    //if (aData[10] == "0") {
+                                    //    //    $(nRow).css('color', 'grey').css('font-style', 'italic');
+                                    //    //}
+
+                                    //if (nRow == "true") {
+                                    //        $(nRow).eq(6).addClass('text-danger');
+                                    //    } else {
+                                    //        $(nRow).eq(6).removeClass('text-danger');
+                                    //    }
+
+                                    //return nRow;
+                                    //}
+
+                                },
+                                {
+                                    "targets": 7,
+                                    mRender: function (data, type, row) {
+                                        return '<button type="button" class="btn btn-primary item-edit" data-bind="' + row.timeSheet_ID + '" data-toggle="modal"  data-target="#ModalTimeSheet" ><i class="glyphicon glyphicon-edit"></i></button>'
+                                    }
+                                },
+                                {
+                                    "targets": 8,
+                                    mRender: function (data, type, row) {
+                                        return '<button type="button" class="btn btn-danger item-delete" data-bind="' + row.timeSheet_ID + '"><i class="glyphicon glyphicon-remove"></i></button>'
+                                    }
+                                }
+                            ]
+                        });
+
+
+                        DataTable.on('order.dt search.dt', function () {
+                            DataTable.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                                cell.innerHTML = i + 1;
+                            });
+                        }).draw();
+
+                        //HighlightCancelRecord();
+                    }
+                }
+            });
+        }
+
+
+
+        $('#showAll').change(function () {
+            console.log('ok');
+            if (this.checked == true) {
+                console.log('checked');
+                LoadList(true);
+            } else {
+                console.log('unchecked');
+                LoadList(false);
+            }
+        });
+
+        function HighlightCancelRecord() {
+            var row = $('#tblTimeSheet').find('tr');
+            for (i = 0; i < row.length - 1; i++) {
+                var value = $('#tblTimeSheet').find('tr:eq(' + i + ')').find("td:eq(6)").html();
+                if (value != "") {
+                    console.log(value);
+                    if (value == "true") {
+                        $('#tblTimeSheet').find('tr:eq(' + i + ')').addClass('text-danger');//.css('color', 'red');
+                    }
+                }
+            }
+        }
+
+    </script>
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*//$.fn.dataTable.ext.classes.sPageButton = 'button primary_button';
+    //datatable = $('#tblTimeSheet').DataTable({
+    //    //"dom":' <"search"fl><"top">rt<"bottom"ip><"clear">',
+    //    //"dom": '<"top"lf>rt<"bottom"ip><"clear">',
+    //    //"dom": '<"top"f>rt<"bottom"ilp><"clear">',
+    //    language: {
+    //        searchPlaceholder: "Search Records..."
+    //    },
+    //    "pagingType": "full_numbers",
+    //    "order": [[1, "desc"]],
+    //    ordering: false,
+    //    "bPaginate": true,
+    //    "bLengthChange": true,
+    //    "bFilter": true,
+    //    "bInfo": true,
+    //    "bAutoWidth": true
+    //    //"sPaginationType": "four_button",
+    //    //"columnDefs": [{
+    //    //    "type": "numeric-comma", targets: 3
+    //    //}]
+    //});*@
+
+@*$('#tblTimeSheet').DataTable({
+        language: {
+            searchPlaceholder: "Search Records..."
+        },
+        "pagingType": "full_numbers",
+        "order": [[1, "desc"]],
+        ordering: false,
+        "bPaginate": true,
+        "bLengthChange": true,
+        "bFilter": true,
+        "bInfo": true,
+        "bAutoWidth": true,
+        "ajax": {
+            "url": '@Url.Action("TimeSheets", "TimeSheet")?ShowAll=' + showAll,
+            "type": "get",
+            "async": false,
+            "datatype": "json"
+        },
+        "columns": [
+            { "data": "timeSheet_ID", "autoWidth": true },
+            { "data": "timeSheetDate", "autoWidth": true },
+            { "data": "subTask", "autoWidth": true },
+            { "data": "totalUtilizedHours", "autoWidth": true },
+            { "data": "remarks", "autoWidth": true },
+            { "data": "isCancelled", "autoWidth": true, "visible": false },
+            {
+                mRender: function (data, type, row) {
+                    return '<a href="javascript:;" class="btn btn-primary item-edit" data-bind="' + row.timeSheet_ID + '" data-toggle="modal"  data-target="#ModalTimeSheet" data-backdrop="false"><i class="glyphicon glyphicon-edit"></i></a> / <a href="javascript:;" class="btn btn-danger item-delete" data-bind="' + row.timeSheet_ID + '"><i class="glyphicon glyphicon-remove"></i></a>'
+                }
+            }
+        ]
+    });
+
+    HighlightCancelRecord();
+
+    $.ajax({
+        type: "GET",
+        url: 'TimeSheet/TimeSheets?ShowAll=' + showAll,
+        async: false,
+        dataType: 'json',
+        success: function (data) {
+            if (data.length > 0) {
+
+                $("#tblTimeSheetsDetail").empty();
+                var newRow = '';
+                var i;
+                console.log(data);
+
+                var iRow = 1;
+                for (i = 0; i < data.length; i++) {
+                    //console.log(data[i].timeSheet_ID + "  " + data[i].timeSheetDate);
+
+                    //if (showAll == false && data[i].isCancelled == true)
+                    //    continue;
+
+                    console.log(data[i].timeSheet_ID + "  " + data[i].timeSheetDate);
+
+                    var date = data[i].timeSheetDate;
+                    var timeSheetDate = new Date(parseInt(date.substr(6)));
+
+                    newRow += '<tr>' +
+                        '<td style="text-align:right;">' + iRow + '</td>' +
+                        '<td>' + data[i].timeSheet_ID + '</td>' +
+                        '<td>' + displayDate(timeSheetDate.toDateString()) + '</td>' +
+                        '<td>' + data[i].subTask + '</td>' +
+                        '<td>' + '<span class="pull-right">' + data[i].totalUtilizedHours.toFixed(2) + '</span>' + '</td>' +
+                        '<td>' + data[i].remarks + '</td>' +
+                        '<td style="display:none;">' + data[i].isCancelled + '</td>' +
+                        '<td>' + '<a href="javascript:;" class="btn btn-primary item-edit" data-bind="' + data[i].timeSheet_ID + '" data-toggle="modal"  data-target="#ModalTimeSheet" data-backdrop="false"><i class="glyphicon glyphicon-edit"></i></a>' + '</td>' +
+                        '<td>' + '<a href="javascript:;" class="btn btn-danger item-delete" data-bind="' + data[i].timeSheet_ID + '"><i class="glyphicon glyphicon-remove"></i></a>' + '</td>' +
+                        '</tr>';
+
+                    iRow++;
+                }
+
+                $('#tblTimeSheetsDetail').append(newRow);
+
+                HighlightCancelRecord();
+            }
+        }
+    });
+
+    datatable.draw();*@
+
+
+@*//$('#showAll :checkbox').change(function () {
+    //    console.log('ok');
+    //    if (this.checked) {
+    //        console.log('checked');
+    //        LoadList(true);
+    //    } else {
+    //        console.log('unchecked');
+    //        LoadList(false);
+    //    }
+    //});
+
+    //function ShowAll(){
+    //    console.log('ok');
+    //    if ($('#showAll :checkbox').checked()) {
+    //        console.log('checked');
+    //        LoadList(true);
+    //    } else {
+    //        console.log('unchecked');
+    //        LoadList(false);
+    //    }
+    //}
+
+    //$(document).ready(function () {
+    //    var oTable = $('#myDatatable').DataTable({
+    //        //"processing": true, // for show progress bar
+    //        //"serverSide": true, // for process server side
+    //        //"filter": false, // this is for disable filter (search box)
+    //        //"orderMulti": false, // for disable multiple column at once
+    //        "ajax": {
+    //            "url": '../TimeSheet/TimeSheets',
+    //            "type": "get",
+    //            "datatype": "json"
+    //        },
+    //        "columns": [
+    //            { "data": "timeSheet_ID", "autoWidth": true },
+    //            { "data": "timeSheetDate", "autoWidth": true },
+    //            { "data": "subTask", "autoWidth": true },
+    //            { "data": "totalUtilizedHours", "autoWidth": true },
+    //            { "data": "remarks", "autoWidth": true },
+    //            { "data": "status_ID", "autoWidth": true },
+    //            { "data": "Deadline", "autoWidth": true },
+    //            { "data": "Deadline_Counter", "autoWidth": true },
+    //            { "data": "AssignedTo", "autoWidth": true },
+    //            { "data": "client_ID", "autoWidth": true },
+    //            { "data": "product_ID", "autoWidth": true },
+    //            { "data": "module_ID", "autoWidth": true },
+    //            { "data": "function_ID", "autoWidth": true },
+    //            { "data": "reported_Date", "autoWidth": true },
+    //            { "data": "reportedUser_ID", "autoWidth": true }
+    //        ]
+    //    });
+    //});
+
+
+
+    //function myFunction() {
+    //    // Declare variables
+    //    var input, filter, table, tr, td, i, txtValue;
+    //    input = document.getElementById("myInput");
+    //    filter = input.value.toUpperCase();
+    //    table = document.getElementById("myTable");
+    //    tr = table.getElementsByTagName("tr");
+
+    //    // Loop through all table rows, and hide those who don't match the search query
+    //    for (i = 0; i < tr.length; i++) {
+    //        td = tr[i].getElementsByTagName("td")[0];
+    //        if (td) {
+    //            txtValue = td.textContent || td.innerText;
+    //            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+    //                tr[i].style.display = "";
+    //            } else {
+    //                tr[i].style.display = "none";
+    //            }
+    //        }
+    //    }
+    //}
+
+    //$("#searchInput").keyup(function () {
+    //    //split the current value of searchInput
+    //    var data = this.value.split(" ");
+    //    //create a jquery object of the rows
+    //    var jo = $("#fbody").find("tr");
+    //    if (this.value == "") {
+    //        jo.show();
+    //        return;
+    //    }
+    //    //hide all the rows
+    //    jo.hide();
+
+    //    //Recusively filter the jquery object to get results.
+    //    jo.filter(function (i, v) {
+    //        var $t = $(this);
+    //        for (var d = 0; d < data.length; ++d) {
+    //            if ($t.is(":contains('" + data[d] + "')")) {
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    })
+    //    //show the rows that match.
+    //    .show();
+    //});*@

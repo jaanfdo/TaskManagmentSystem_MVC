@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SEACC TMS</title>
+    <link rel="icon" href="@Url.Content("~/TMS.ico")" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Content/datatables.min.css" rel="stylesheet" />
+    <link href="~/Content/ui-bootstrap-csp.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("SEACC TMS", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li><a href="@Url.Action("Index", "TaskBucket")" target="_blank" >Tasks List</a></li>
+                    <li><a href="@Url.Action("Create", "Task")" target="_blank" >Create Task</a></li>
+                    <li><a href="@Url.Action("Create", "TaskEstimation")?task_ID=0" target="_blank"  >Tasks Estimation</a></li>  @*@Html.ActionLink("Tasks Estimation", "Create", "TaskEstimation", new { task_ID = "0" }, null)*@
+                    <li><a href="@Url.Action("Index", "TimeSheet")" target="_blank" >Time Sheets</a></li> @*@Html.ActionLink("Time Sheets", "Index", "TimeSheet")*@
+                    <li><a href="@Url.Action("Index", "Reports")" target="_blank">Reports</a></li> 
+
+                    @*<li class="dropdown">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Time Sheet Reports", "TimeSheetReports", "Reports")</li>
+                            <li role="separator" class="divider"></li>
+                            <li>@Html.ActionLink("Reports", "Index", "Reports")</li>
+                            <li role="separator" class="divider"></li>
+                        </ul>
+                    </li>*@
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        @*<hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - SEACC TMS WEB Application</p>
+            </footer>*@
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angularjs/angular-route.min.js"></script>
+    <script src="~/Scripts/ui-bootstrap-tpls-1.0.3.js"></script>
+    <script src="~/Scripts/datatables.min.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/autosize.min.js"></script>
+    <script src="~/Scripts/Formats.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* <link href="~/Content/jquery.autogrow.css" rel="stylesheet" />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+        <link href="~/Content/DataTables/css/jquery.dataTables.min.css" rel="stylesheet" />
+        <link href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css" rel="stylesheet">
+        <link data-require="bootstrap-css@2.3.2" data-semver="2.3.2" rel="stylesheet" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" />
+        <link href="https://cdn.datatables.net/buttons/1.5.4/css/buttons.dataTables.min.css" rel="stylesheet">
+        <link href="https://cdn.datatables.net/select/1.2.7/css/select.dataTables.min.css" rel="stylesheet">
+        <link href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">*@
+
+
+@*<script src="https://code.angularjs.org/1.4.8/angular.js"></script>
+    <script src="~/Scripts/dialogs.min.js"></script>
+    <script src="~/Scripts/angular-ui/ui-bootstrap-tpls.min.js"></script>
+    <script src="~/Scripts/jquery.autogrow.js"></script>
+    <script src="~/Scripts/ui-bootstrap-tpls-1.0.3.js"></script>
+    <script src="~/Scripts/ui-bootstrap-tpls-0.11.0.js"></script>
+    <script src="~/Scripts/four_button.js"></script>
+        <script src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/numeric-comma.js"></script>
+        <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+            <script src="~/Scripts/jquery.twbsPagination.min.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.4/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+        <script src="https://editor.datatables.net/extensions/Editor/js/dataTables.editor.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>*@

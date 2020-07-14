@@ -1,0 +1,46 @@
+﻿@model IEnumerable<SEACC_TMS_New.tbl_pmsTxTaskEstimation_Detail>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.tbl_genMasSubTask.subTaskName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.tbl_pmsTxTaskEstimation.task_ID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.estimatedHours)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.tbl_genMasSubTask.subTaskName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.tbl_pmsTxTaskEstimation.task_ID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.estimatedHours)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+        </td>
+    </tr>
+}
+
+</table>
